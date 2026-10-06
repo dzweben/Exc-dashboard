@@ -193,7 +193,7 @@ class CodeIncoming extends Error {
 function incomingCode(branch) {
   let f = null;
   for (let i = 0; i < 4; i++) {
-    f = gitRun(['fetch', 'origin', branch], { env: GIT_ENV });
+    f = gitRun(['fetch', 'origin', `+refs/heads/${branch}:refs/remotes/origin/${branch}`], { env: GIT_ENV });
     if (f.ok || !isTransient(f.out) || i === 3) break;
     sleepMs(2000 * 2 ** i);
   }
@@ -356,7 +356,7 @@ function push({ allowCode = false } = {}) {
     last = r.out;
     if (isHardReject(r.out)) die(`push rejected by GitHub (a rule or permission), not retried:\n${indent(r.out)}\nYour commits are safe locally.`, 1);
     if (isRace(r.out)) {
-      const f = gitRun(['fetch', 'origin', branch], { env: GIT_ENV });
+      const f = gitRun(['fetch', 'origin', `+refs/heads/${branch}:refs/remotes/origin/${branch}`], { env: GIT_ENV });
       if (f.ok && gitRun(['merge-base', '--is-ancestor', `origin/${branch}`, 'HEAD']).ok) die(`push rejected, but origin/${branch} has nothing new. Not retrying:\n${indent(r.out)}`, 1);
       let res;
       try {
