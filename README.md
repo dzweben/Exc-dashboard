@@ -8,29 +8,15 @@ streak + heatmap, optional plans and body weight, with Claude as the chat
 front end. Weights are plates only (the bar is never counted). Same setup as the
 [EF Console](https://github.com/dzweben/ef-dashboard-management).
 
-- **Website:** https://dzweben.github.io/Exc-dashboard/
-  Type workouts into the terminal bar (`push day: bench 3x8 @185, 30 min`),
-  switch it to PLAN for the next two weeks, tap a workout to fix its numbers,
-  hit "Did it" on a planned day. Every change is a commit under Danny's name.
-- **Chat:** tell Claude `ran 3 miles yesterday`, `legs: squat 5x5 @225`,
-  `plan pull day wed`, `what did I do last push day?`. Every turn Claude pulls
-  your website changes, logs what you said (backdated to the day it happened),
-  writes a short note for the site, and commits + pushes.
+- **Website:** https://dzweben.github.io/Exc-dashboard/ (read-only): what
+  hasn't been hit lately, best + trend per exercise, consistency, recent sessions.
+- **Chat:** tell Claude what you did (`lat pulldown 130x3`, `soleus stretch 35s
+  @90 per side`); ask `what haven't I hit?` when you want to know. Claude logs it
+  on the right day and commits + pushes; it doesn't nudge.
 - **Database:** `data/state.json`. Git history is the track record.
 
-## One-time setup
-
-1. **Turn on the website.** Repo **Settings → Pages → Build and deployment →
-   Source: Deploy from a branch**, branch `main`, folder `/docs` → Save.
-2. **Let the site save.** Create a fine-grained token:
-   https://github.com/settings/personal-access-tokens/new?name=Workout+Console&target_name=dzweben&expires_in=365&contents=write
-   - Repository access: **Only select repositories → exc-dashboard**
-   - Repository permissions: **Contents → Read and write**
-   Open the site → **Setup** → paste → Save token. Once per device. It stays in
-   that browser's localStorage only (shared by all your github.io sites, so keep
-   it limited to this one repo). Revoke it on GitHub if anything looks off.
-3. **Privacy.** The repo is public: anyone can read your workouts. Making it
-   private needs GitHub Pro for Pages (free with the Student Developer Pack).
+The site needs no token. (A token made earlier for the old editable version can
+be revoked: GitHub → Settings → Developer settings → Fine-grained tokens.)
 
 ## What Claude understands
 

@@ -15,7 +15,7 @@ Danny ──chat──▶ Claude (CLAUDE.md), every turn:
                   ▼
         github.com/dzweben/exc-dashboard ── data/state.json (every change = a commit)
                   ▲
-Danny ──taps──▶ website (docs/index.html) ── Contents API with Danny's fine-grained token
+Danny ──reads──▶ website (docs/index.html): read-only dashboard, fetches data/state.json
 ```
 
 - `data/state.json` never merges as text: `bin/wk-merge.mjs` (git merge driver
@@ -85,20 +85,11 @@ New exercises/types are created `ifAbsent`.
   `logView`, `upcomingPlans`.
 - `brief.js`: `buildBrief`, `changesBetween`, `changesSince`, `commitMessage`, `fmtEntry`.
 
-## Stores (`src/store/`)
-
-Unchanged from the EF Console: `createGitHubStore({ owner, repo, branch, path,
-token, author })` loads the file, applies writes optimistically, queues one
-batch per action, rebases queued batches onto newer remote copies and PUTs
-with the file sha (retries 409/422). Pending batches survive reloads in
-localStorage under `wk.pending.v2:…`. Without a token it reads the public raw
-file read-only.
-
 ## Website (`src/ui/`)
 
-`main.js` owns state, builds `ctx`, renders the active tab every change. Tabs:
-Today (overview), Log, 2 weeks, PRs, Body, Setup. The header holds the log
-terminal (LOG / PLAN modes, live parse preview), the next-up card and the
-vitals. Sheets (`views/sheet.js`) edit a workout or plan. The token is stored
-under `wk.gh.token` (never the EF Console's key). `scripts/build.mjs` inlines
-everything into `docs/index.html`; `--preview` embeds a state for local testing.
+Read-only, one page. `main.js` fetches `data/state.json` (GitHub API raw media
+type, falling back to raw.githubusercontent.com; no token), normalizes it and
+renders: stat strip, Not hit lately (`rotation`), Progress (`exerciseStats`),
+Consistency (`heatmap` + areas hit in 30 days), Recent sessions, Body weight (only
+if logged). Refetches when the tab becomes visible. `scripts/build.mjs` inlines
+everything into `docs/index.html`; `--preview` embeds a state for local checks.

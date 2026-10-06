@@ -12,9 +12,10 @@ motion, general well-being**), works at ~30-35% effort, and tries to edge past
 what he did before. Long-term tracking is what lets him stay easy forever,
 instead of the vigorous track-everything apps he has burned out on.
 
-The website (GitHub Pages, `docs/index.html`) shows the same data. Danny logs,
-edits and checks off plans there too, and each of those saves as a commit
-authored by him. **You must pick those changes up at the start of every turn.**
+The website (GitHub Pages, `docs/index.html`) is **read-only**: Danny checks it
+for progress and stats (what hasn't been hit, bests and trends, consistency,
+recent sessions). All logging happens through you. `wk sync` still runs first
+every turn (it pulls anything new on GitHub).
 
 ## Every turn, no exceptions
 
@@ -28,26 +29,25 @@ The CLI needs no `npm install`.
    ("lifted with Mike" → notes "with a friend"; "shoulder PT exercises" is fine,
    a diagnosis is not). Never pass an identifier to wk.
 1. `node bin/wk.mjs sync`
-   Pulls the website's commits (`git pull --rebase --autostash`), prints **what
-   Danny did on the website** in this pull, then today's log, plans and recent
-   workouts. Mention website changes in one line ("Saw you logged Saturday's run.").
+   Pulls anything new on GitHub (`git pull --rebase --autostash`), then prints
+   today's log and what's due. (The site no longer writes, so "what Danny did on
+   the website" should stay empty.)
    - `BOTH SIDES CHANGED THE SAME FIELD`: chat's value was kept. Tell Danny in one line, offer to switch.
    - `WRONG BRANCH FOR DATA`: the website only reads origin's default branch. Do the data turn there.
    - `pull failed`: carry on with local data; `wk push` merges later.
    - `CODE CHANGED ON GITHUB`: origin has commits outside `data/`. wk never pulls
-     code silently (the website's token can write the whole repo). If it is
-     Danny's or another Claude session's code work and the diff looks right,
-     rerun with `--allow-code`. If a website (`dash:`) commit changed code, don't
-     pull: tell Danny to revoke his website token.
+     code silently (it runs what it pulls). If it is Danny's or another Claude
+     session's code work and the diff looks right, rerun with `--allow-code`.
+     Anything else (a `dash:` commit, an unknown author): don't pull; tell Danny
+     to revoke any GitHub token he made for this repo.
 2. Turn his message into commands (below). Echo every resolved date in your
    reply ("Push day → Mon 10/5"). Read the `→` preview wk prints and fix
    anything it misread (`!! could not read`, a NEW exercise that is really an
    existing one: `wk ex merge`).
-3. `node bin/wk.mjs brief --write` (the note shown on the website).
-4. `node bin/wk.mjs commit && node bin/wk.mjs push`
+3. `node bin/wk.mjs commit && node bin/wk.mjs push`
    Commits as Danny ("Danny Zweben <176344411+dzweben@users.noreply.github.com>",
    never his personal email). Danny wants a commit for **every** turn, so this
-   always runs, even if only the brief changed.
+   always runs (`nothing to commit` is fine).
    - `merged our changes on top of new website commits`: fine; mention what's
      listed under `WEBSITE CHANGES MERGED DURING PUSH`.
    - Exit 1 (`push rejected`, `push failed`): nothing reached the website. Your
@@ -125,24 +125,20 @@ exactly the number he says; don't add 45. (`settings.plates` is on.)
 
 ## Danny's preferences
 
-- **A record + a go-between, not a coach.** No programs, no prescribed splits,
-  no form tips, no lectures about volume or intensity. He picks; you remember.
-- **Remind him what hasn't been hit** (he asked for this; `settings.reminders`
-  is on). The brief and your replies can say "today could be tib raises or
-  stretching" from `wk next` (the most overdue exercises, one per area). One
-  line, offered not pushed. Never guilt about gaps or rest days.
-- **"Beat what you did before," gently.** When he asks what to do, give the
-  last numbers (and best) for each suggestion so he can edge past them at easy
-  effort. Respect per-exercise goals (`goal:` in `wk next`): e.g. calf raises =
-  stay at 90, grow range, so suggest range/control, not more weight.
-- **Celebrate PRs** in one short line, specifically. `wk log` prints `★ PR`
-  lines; don't invent PRs.
-- **Plans are optional.** Only plan days when he asks ("plan tib raises wed").
-  Missed plans: ask about at most 2, no guilt.
-- **New exercises:** when `wk log` makes a NEW exercise, set its area so the
-  rotation groups it right (`wk ex edit <id> --type feet|mobility|pull|…
-  --kind lift|bw|time|cardio`). Areas he cares about: feet & calves, mobility,
-  plus whatever strength areas he trains.
+- **Passive, not proactive.** Log and answer. No unprompted suggestions, no
+  "today could be…", no reminders, no scheduled check-ins, no coaching, no form
+  tips. If he asks "what should I hit?" / "what haven't I done?", answer from
+  `wk next` (most overdue first, with last numbers and his goal for each).
+- **When he asks, "beat what you did before," gently**: give the last numbers
+  (and best) so he can edge past them at easy effort. Respect per-exercise goals
+  (e.g. calf raises = stay at 90, grow range: suggest range/control, not weight).
+- **PRs:** mention one in a short line when `wk log` prints `★ PR`. Don't invent them.
+- **Plans:** only if he asks for one; they don't show on the site.
+- **New exercises:** when `wk log` makes a NEW exercise, set its area and kind
+  so the site groups it right (`wk ex edit <id> --type feet|mobility|pull|push|…
+  --kind lift|bw|time|cardio`). If wk matched a phrase to the wrong existing
+  exercise ("seated machine row" → barbell row), fix it: create the right one
+  with aliases (`wk ex add`), `--drop` the wrong item, `--add` again.
 
 ## How to reply
 
@@ -151,26 +147,26 @@ exactly the number he says; don't add 45. (`settings.plates` is on.)
   missed plans).
 - If a workout came in with no details, ask once what he did, and log the
   answer onto that workout (`wk edit`), not as a new one.
+- Same day, more exercises → add to that day's workout (`wk edit <day> --add`).
 
 ## The website
 
-- Live site: https://dzweben.github.io/Exc-dashboard/ (GitHub Pages from
-  `docs/` on the default branch). Danny enables Pages once: Settings → Pages →
-  Deploy from a branch → `main` / `/docs`.
-- It reads and writes `data/state.json` through the GitHub API with a
-  fine-grained token (Contents: read and write on this repo only) pasted into
-  its Setup tab, stored only in that browser (`wk.gh.token`; the EF Console's
-  token is a different key and repo).
-- Rebuild after UI changes: `npm install && npm run build`, then commit `docs/`.
-  Check it in a browser before pushing: `node scripts/build.mjs --preview &&
-  node scripts/screenshot.mjs overview` (and `--phone`).
+- Live site: https://dzweben.github.io/Exc-dashboard/ (GitHub Pages from `main`).
+  Repo name is `Exc-dashboard` (capital E): Pages paths are case-sensitive.
+- **Read-only.** One page: stat strip, Not hit lately, Progress (best + trend per
+  exercise), Consistency (heatmap + areas hit), Recent sessions, Body weight
+  (only if logged). It fetches `data/state.json` from the GitHub API (no token).
+  Keep it simple: Danny explicitly does not want more features or logging UI.
+- Its own look (dark instrument panel, cyan→violet→pink accents, Space Grotesk),
+  deliberately not the EF Console's punk style.
+- Rebuild after UI changes: `npm install && npm run build`, commit `docs/`.
+  Check it first: `node scripts/build.mjs --preview && node scripts/screenshot.mjs overview` (and `--phone`).
 
 ## Code map
 
 - `docs/ARCHITECTURE.md`: data shapes and every module.
 - `src/engine/`: pure logic shared by the site and the CLI (model, parse, ops, stats, views, brief, dates, defaults).
-- `src/store/`: GitHub-backed and local stores for the website.
-- `src/ui/`: the website (`src/ui/README.md` is the design brief).
+- `src/ui/`: the read-only website (`main.js`, `styles/app.css`, `template.html`).
 - `bin/wk.mjs`: the CLI. `bin/wk-merge.mjs`: git merge driver for `data/state.json`.
 - `test/`: `npm test` (node:test).
 
@@ -181,6 +177,6 @@ exactly the number he says; don't add 45. (`settings.plates` is on.)
 - **Data turns run on `main`**, the only branch the website reads.
 - `data/state.json` is never text-merged: wk registers the `wkstate` merge
   driver on every run (`node bin/wk-merge.mjs %O %A %B`), which merges field by
-  field (workout items by id), so website and chat edits both survive.
+  field (workout items by id), so two Claude sessions' edits both survive.
 - If wk says `data/state.json is not valid JSON`: `git rebase --abort` if one is
   in progress, `git checkout HEAD -- data/state.json`, `wk sync`, redo the turn.

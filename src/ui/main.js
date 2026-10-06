@@ -1,456 +1,220 @@
-// Workout Console boot: picks a store, owns app state, renders views, dispatches ops.
-import { h, mount, safeStorage, isSegmented } from './dom.js';
-import { todayISO, nowISO, addDays } from '../engine/dates.js';
-import { OPS } from '../engine/ops.js';
-import { calendarView, todayView, logView, upcomingPlans } from '../engine/views.js';
-import { weekStats, weeks, streak, heatmap, prsIndex, exerciseStats, bodyTrend, rotation, areaGaps, suggestions } from '../engine/stats.js';
-import { normalizeState, emptyState } from '../engine/model.js';
-import { createGitHubStore } from '../store/githubstore.js';
-import { createLocalStore } from '../store/localstore.js';
-import { mountHeader } from './views/header.js';
-import { renderOverview } from './views/overview.js';
-import { renderLog } from './views/log.js';
-import { renderPlan } from './views/plan.js';
-import { renderLifts } from './views/lifts.js';
-import { renderBody } from './views/body.js';
-import { renderSetup } from './views/setup.js';
-import { renderWorkoutSheet, renderPlanSheet } from './views/sheet.js';
-import { burst, stamp } from './fx/burst.js';
-import { icon } from './icons.js';
+// EXC: Danny's read-only training dashboard. He logs by talking to Claude; this page
+// only shows the record: what hasn't been hit lately, progress, consistency.
+import { h, mount, s } from './dom.js';
+import { normalizeState } from '../engine/model.js';
+import { todayISO, addDays, fmtDay } from '../engine/dates.js';
+import { fmtItem, fmtPace, trimNum } from '../engine/parse.js';
+import {
+  rotation, exerciseStats, prsIndex, fmtPR, chronological, heatmap, weekStats, weeks, sinceLabel, bodyTrend,
+} from '../engine/stats.js';
 
-const storage = safeStorage();
-// Keys are prefixed "wk." : every Pages site under dzweben.github.io shares one localStorage,
-// and the EF Console's token ("ef.gh.token") only has access to its own repo.
-const TOKEN_KEY = 'wk.gh.token';
-const CONFIG_KEY = 'wk.gh.config';
-
-export const DEFAULT_CONFIG = Object.freeze({
-  owner: 'dzweben',
-  repo: 'Exc-dashboard',
-  branch: '', // '' = the repo's default branch
-  path: 'data/state.json',
-  // Author + committer of every website commit (GitHub's noreply address, never a personal email).
-  author: Object.freeze({ name: 'Danny Zweben', email: '176344411+dzweben@users.noreply.github.com' }),
-});
-
-const HEALTHY = new Set(['synced', 'saving', 'pending']);
-const POINTER_RELEASE_MS = 400;
-const POINTER_HOLD_MAX_MS = 5000;
-
-export const TABS = [
-  { id: 'overview', label: 'Today', icon: 'bolt' },
-  { id: 'log', label: 'Log', icon: 'history' },
-  { id: 'plan', label: '2 weeks', icon: 'calendar' },
-  { id: 'lifts', label: 'Progress', icon: 'trophy' },
-  { id: 'body', label: 'Body', icon: 'scale' },
-  { id: 'setup', label: 'Setup', icon: 'settings' },
+const SOURCES = [
+  { url: 'https://api.github.com/repos/dzweben/Exc-dashboard/contents/data/state.json?ref=main', headers: { Accept: 'application/vnd.github.raw' } },
+  { url: 'https://raw.githubusercontent.com/dzweben/Exc-dashboard/main/data/state.json' },
 ];
 
-const VIEWS = {
-  overview: renderOverview,
-  log: renderLog,
-  plan: renderPlan,
-  lifts: renderLifts,
-  body: renderBody,
-  setup: renderSetup,
-};
-
-const CONFIG_KEYS = ['owner', 'repo', 'branch', 'path'];
-
-function pickConfig(cfg) {
-  const out = { ...DEFAULT_CONFIG };
-  if (cfg && typeof cfg === 'object') for (const k of CONFIG_KEYS) if (typeof cfg[k] === 'string') out[k] = cfg[k];
-  return out;
+async function loadState() {
+  if (typeof window !== 'undefined' && window.__WK_PREVIEW__) return normalizeState(window.__WK_PREVIEW__);
+  let lastErr = null;
+  for (const src of SOURCES) {
+    try {
+      const sep = src.url.includes('?') ? '&' : '?';
+      const res = await fetch(`${src.url}${sep}t=${Date.now()}`, { headers: src.headers ?? {}, cache: 'no-store' });
+      if (!res.ok) throw new Error(`${res.status}`);
+      return normalizeState(await res.json());
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw lastErr ?? new Error('could not load');
 }
 
-function readConfig() {
-  try {
-    const raw = storage.get(CONFIG_KEY);
-    return pickConfig(raw ? JSON.parse(raw) : {});
-  } catch {
-    return pickConfig({});
-  }
+const area = (state, id) => state.types?.[id] ?? { name: 'Other', color: '#8b93a7' };
+const tone = (state, id) => ({ '--c': area(state, id).color });
+
+function since(days) {
+  if (days == null) return { big: '—', small: 'never' };
+  if (days === 0) return { big: '0', small: 'today' };
+  return { big: String(days), small: days === 1 ? 'day ago' : 'days ago' };
 }
 
-function tabFromHash() {
-  const t = (location.hash || '').replace(/^#/, '');
-  return TABS.some((x) => x.id === t) ? t : 'overview';
+function spark(values, w = 120, hgt = 34) {
+  if (values.length < 2) return null;
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const span = max - min || 1;
+  const pts = values.map((v, i) => [(i / (values.length - 1)) * (w - 6) + 3, hgt - 4 - ((v - min) / span) * (hgt - 8)]);
+  const [lx, ly] = pts[pts.length - 1];
+  return s('svg', { class: 'spark', viewBox: `0 0 ${w} ${hgt}`, width: w, height: hgt, 'aria-hidden': 'true' },
+    s('polyline', { points: pts.map((p) => p.map((n) => n.toFixed(1)).join(',')).join(' '), fill: 'none', stroke: 'currentColor', 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }),
+    s('circle', { cx: lx, cy: ly, r: 3.5, fill: 'currentColor' }),
+  );
 }
 
-/** Mount the app. `opts.createStore(storeOptions)` swaps in a store (tests). */
-export function boot(root = document, opts = {}) {
-  const els = {
-    header: root.getElementById('wk-header'),
-    tabs: root.getElementById('wk-tabs'),
-    main: root.getElementById('wk-main'),
-    overlay: root.getElementById('wk-overlay'),
-    toasts: root.getElementById('wk-toasts'),
-  };
+function bestText(state, best) {
+  const u = state.settings?.unit ?? 'lb';
+  const d = state.settings?.dist ?? 'mi';
+  if (best.weight) return `${trimNum(best.weight.value)} ${u}`;
+  if (best.reps) return `${best.reps.value} reps`;
+  if (best.hold) return `${best.hold.value}s`;
+  if (best.distance) return `${trimNum(best.distance.value)} ${d}`;
+  if (best.pace) return `${fmtPace(best.pace.value)}/${d}`;
+  if (best.duration) return `${Math.round(best.duration.value)} min`;
+  return '';
+}
 
-  const app = {
-    state: emptyState(),
-    loaded: false,
-    loadFailed: false,
-    config: readConfig(),
-    token: storage.get(TOKEN_KEY) || '',
-    store: null,
-    status: { kind: 'loading', at: null, message: 'Loading…' },
-    ui: { tab: tabFromHash(), sheet: null, filters: {}, drafts: {} },
-    renderQueued: false,
-    renderHeld: false,
-    pointerHold: false,
-    holdTimer: null,
-    focusHeld: false,
-    renderedTab: null,
-    header: null,
-    unsub: null,
-    unstatus: null,
-  };
+function section(title, sub, ...body) {
+  return h('section.card', h('header.card-head', h('h2', title), sub ? h('p.sub', sub) : null), ...body);
+}
 
-  // ---------- store ----------
-  function defaultStore(storeOptions) {
-    const preview = window.__WK_PREVIEW__;
-    if (preview) return createLocalStore(normalizeState(preview), { key: 'wk.preview.v1' });
-    return createGitHubStore(storeOptions);
+// ------------------------------------------------------------------ sections
+
+function stats(state, today) {
+  const wk = weekStats(state, today);
+  const all = chronological(state);
+  const last30 = all.filter((w) => w.d > addDays(today, -30)).length;
+  const ws = weeks(state, today, 52);
+  let run = 0;
+  for (let i = ws.length - 1; i >= 0; i--) {
+    if (ws[i].sessions) run++;
+    else if (i === ws.length - 1) continue; // this week can still be empty
+    else break;
   }
+  const prCount = [...prsIndex(state).values()].reduce((a, l) => a + l.length, 0);
+  const tracked = exerciseStats(state).length;
+  const tile = (n, label) => h('div.stat', h('b.stat-n', String(n)), h('span.stat-l', label));
+  return h('div.stats',
+    tile(wk.sessions, 'this week'),
+    tile(last30, 'last 30 days'),
+    tile(run, run === 1 ? 'week active' : 'weeks active'),
+    tile(prCount, prCount === 1 ? 'PR' : 'PRs'),
+    tile(tracked, 'exercises'),
+  );
+}
 
-  function pickStore() {
-    if (app.unsub) app.unsub();
-    if (app.unstatus) app.unstatus();
-    app.unsub = app.unstatus = null;
-    if (app.store && app.store.dispose) app.store.dispose();
-    app.loaded = false;
-    app.loadFailed = false;
-    app.status = { kind: 'loading', at: null, message: 'Loading…' };
-    const storeOptions = { ...app.config, author: { ...DEFAULT_CONFIG.author }, token: app.token || null };
-    const store = typeof opts.createStore === 'function' ? opts.createStore(storeOptions) : defaultStore(storeOptions);
-    app.store = store;
-    const current = () => app.store === store;
-    app.unsub = store.subscribe((state) => {
-      if (!current() || !state) return;
-      app.state = state;
-      app.loaded = true;
-      schedule();
-    });
-    if (store.onStatus) {
-      const off = store.onStatus((st) => {
-        if (!current() || !st) return;
-        app.status = st;
-        if (HEALTHY.has(st.kind)) app.loadFailed = false;
-        schedule();
-      });
-      app.unstatus = typeof off === 'function' ? off : null;
-    }
-    let loading;
+function notHit(state, today) {
+  const rot = rotation(state, today);
+  if (!rot.length) return section('Not hit lately', null, h('p.empty', 'Nothing logged yet.'));
+  return section('Not hit lately', 'longest gap first',
+    h('ul.due', rot.map((r) => {
+      const sn = since(r.daysSince);
+      return h('li.due-row', { style: tone(state, r.area), class: r.daysSince === 0 ? 'is-today' : r.daysSince == null || r.daysSince >= 10 ? 'is-hot' : '' },
+        h('div.due-days', h('b', sn.big), h('span', sn.small)),
+        h('div.due-main',
+          h('span.due-name', r.name),
+          h('span.due-meta', h('i.dot'), area(state, r.area).name, r.last ? ` · last ${fmtItem(r.last.item, state.settings) || 'done'}` : ' · not logged yet'),
+          r.goal ? h('span.due-goal', r.goal) : null,
+        ),
+      );
+    })),
+  );
+}
+
+function progress(state) {
+  const rows = exerciseStats(state).sort((a, b) => b.sessions - a.sessions || (a.last.d < b.last.d ? 1 : -1));
+  if (!rows.length) return null;
+  return section('Progress', 'best so far, trend per session',
+    h('div.prog', rows.map((r) => {
+      const ex = state.exercises?.[r.ex];
+      const first = r.trend[0]?.value;
+      const lastV = r.trend[r.trend.length - 1]?.value;
+      const delta = first != null && lastV != null && r.trend.length > 1 ? lastV - first : null;
+      return h('div.prog-card', { style: tone(state, ex?.type) },
+        h('div.prog-top', h('span.prog-name', r.name), h('span.prog-n', `${r.sessions}×`)),
+        h('b.prog-best', bestText(state, r.best) || fmtItem(r.last.item, state.settings) || 'done'),
+        h('div.prog-foot',
+          spark(r.trend.map((t) => t.value)) ?? h('span.prog-base', 'baseline set'),
+          delta != null && Math.abs(delta) > 0.01 ? h('span.prog-delta', { class: delta > 0 ? 'is-up' : 'is-down' }, `${delta > 0 ? '+' : ''}${trimNum(Math.round(delta * 10) / 10)}`) : null,
+        ),
+      );
+    })),
+  );
+}
+
+function consistency(state, today) {
+  const cells = heatmap(state, today, 20);
+  const cols = [];
+  for (let i = 0; i < cells.length; i += 7) cols.push(cells.slice(i, i + 7));
+  // sessions per area, last 30 days
+  const from = addDays(today, -29);
+  const counts = new Map();
+  for (const w of chronological(state)) {
+    if (w.d < from) continue;
+    const areas = new Set(w.items.map((i) => state.exercises?.[i.ex]?.type ?? w.type));
+    if (!areas.size) areas.add(w.type);
+    for (const a of areas) counts.set(a, (counts.get(a) ?? 0) + 1);
+  }
+  const max = Math.max(1, ...counts.values());
+  return section('Consistency', 'last 20 weeks',
+    h('div.heat', cols.map((c) => h('div.heat-col', c.map((d) => h('span.heat-cell', {
+      class: [d.count ? 'on' : '', d.d === today ? 'today' : '', d.future ? 'future' : ''].join(' '),
+      style: d.count ? tone(state, d.types[0]) : null,
+      title: `${fmtDay(d.d)}${d.count ? ` · ${d.count} session${d.count > 1 ? 's' : ''}` : ''}`,
+    }))))),
+    counts.size ? h('div.areas',
+      h('p.sub', 'areas hit, last 30 days'),
+      [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([a, n]) => h('div.area-row', { style: tone(state, a) },
+        h('span.area-name', area(state, a).name),
+        h('span.area-bar', h('i', { style: { width: `${(n / max) * 100}%` } })),
+        h('b.area-n', String(n)),
+      ))) : null,
+  );
+}
+
+function recent(state, today) {
+  const list = chronological(state).reverse().slice(0, 8);
+  if (!list.length) return null;
+  const idx = prsIndex(state);
+  return section('Recent sessions', null,
+    h('ul.sessions', list.map((w) => h('li.session',
+      h('div.session-head', h('b', fmtDay(w.d)), h('span.sub', sinceLabel(Math.round((Date.parse(today) - Date.parse(w.d)) / 864e5)))),
+      h('ul.session-items', w.items.map((it) => h('li', { style: tone(state, state.exercises?.[it.ex]?.type) },
+        h('i.dot'), h('span', state.exercises?.[it.ex]?.name ?? it.ex), h('span.mono', fmtItem(it, state.settings))))),
+      w.notes ? h('p.session-note', w.notes) : null,
+      (idx.get(w.id) ?? []).map((p) => h('p.session-pr', `PR · ${fmtPR(p, state.settings)}`)),
+    ))),
+  );
+}
+
+function body(state, today) {
+  const bt = bodyTrend(state, today, 180);
+  if (!bt.list.length) return null;
+  return section('Body weight', null,
+    h('div.bw', h('b.stat-n', String(bt.last.w)), h('span.sub', fmtDay(bt.last.d)), spark(bt.list.map((b) => b.w), 220, 44)),
+  );
+}
+
+function render(root, state) {
+  const today = todayISO(state.settings?.tz || 'America/New_York');
+  const lastW = chronological(state).pop();
+  mount(root,
+    h('header.top',
+      h('h1.logo', 'EXC', h('span', '/ training log')),
+      h('p.sub', lastW ? `last session ${fmtDay(lastW.d)} · ${sinceLabel(Math.round((Date.parse(today) - Date.parse(lastW.d)) / 864e5))}` : 'no sessions yet'),
+    ),
+    stats(state, today),
+    h('div.grid',
+      h('div.col', notHit(state, today), recent(state, today)),
+      h('div.col', progress(state), consistency(state, today), body(state, today)),
+    ),
+    h('footer.foot', `Logged through Claude · updated ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`),
+  );
+}
+
+export async function boot(root = document.getElementById('wk-app')) {
+  const go = async () => {
     try {
-      loading = Promise.resolve(store.load());
+      render(root, await loadState());
     } catch (err) {
-      loading = Promise.reject(err);
+      mount(root, h('p.boot', `Couldn't load the log (${err?.message || err}). Refresh to try again.`));
     }
-    loading.then(
-      () => {
-        if (!current()) return;
-        if (app.status.kind === 'error') app.loadFailed = true;
-        schedule();
-      },
-      (err) => {
-        if (!current()) return;
-        app.loadFailed = true;
-        if (app.status.kind === 'loading') app.status = { kind: 'error', at: nowISO(), message: err?.message || String(err) };
-        schedule();
-      },
-    );
-  }
-
-  function notReadyReason() {
-    const st = app.status ?? {};
-    const why = (st.kind === 'error' || st.kind === 'offline') && st.message ? ` ${st.message}` : '';
-    if (!app.loaded) return `Still loading your log…${why}`;
-    if (app.loadFailed && st.kind === 'error') return `Still loading your log…${why || ' GitHub load failed.'}`;
-    if (typeof app.store?.isLoaded === 'function' && app.store.isLoaded() === false) return `Still loading your log…${why || ' GitHub load failed.'}`;
-    return null;
-  }
-
-  // ---------- ctx ----------
-  function buildCtx() {
-    const state = app.state;
-    const tz = state.settings?.tz || 'America/New_York';
-    const today = todayISO(tz);
-    const now = nowISO();
-    const vm = memoVm(state, today);
-    const canWrite = !!app.store && app.store.mode !== 'readonly';
-    return {
-      state, today, now, tz, vm,
-      type: (id) => state.types?.[id] ?? state.types?.other ?? { id: 'other', name: 'Workout', color: '#b0b8c1', glyph: 'WO', kind: 'other' },
-      ex: (id) => state.exercises?.[id] ?? { id, name: id, kind: 'lift' },
-      ui: app.ui,
-      loaded: app.loaded,
-      store: { mode: app.store?.mode ?? 'readonly', status: app.status, canWrite, refresh: () => app.store?.refresh?.() },
-      config: app.config,
-      hasToken: !!app.token,
-      act, setUI, setTab, rerender: schedule,
-      openWorkout: (id) => setUI({ sheet: { kind: 'workout', id }, sheetConfirm: null, sheetDraft: null }),
-      openPlan: (id) => setUI({ sheet: { kind: 'plan', id }, sheetConfirm: null, sheetDraft: null }),
-      newPlan: (d) => setUI({ sheet: { kind: 'plan', id: null, d }, sheetConfirm: null, sheetDraft: null }),
-      newWorkout: (d) => setUI({ sheet: { kind: 'workout', id: null, d }, sheetConfirm: null, sheetDraft: null }),
-      closeOverlay,
-      toast,
-      fx: { burst, stamp },
-      icon,
-      setToken, clearToken, saveConfig,
-    };
-  }
-
-  let vmCache = { state: null, today: null, vm: null };
-  function memoVm(state, today) {
-    if (vmCache.state === state && vmCache.today === today) return vmCache.vm;
-    const vm = {
-      today: todayView(state, today),
-      cal: calendarView(state, today, 14, today),
-      past: calendarView(state, addDays(today, -6), 7, today),
-      log: logView(state, { limit: 400 }),
-      upcoming: upcomingPlans(state, today, 14),
-      week: weekStats(state, today),
-      weeks: weeks(state, today, 8),
-      streak: streak(state, today),
-      heat: heatmap(state, today, 16),
-      prs: prsIndex(state),
-      exercises: exerciseStats(state),
-      body: bodyTrend(state, today, 120),
-      rotation: rotation(state, today),
-      areas: areaGaps(state, today),
-      suggest: suggestions(state, today, 2),
-    };
-    vmCache = { state, today, vm };
-    return vm;
-  }
-
-  // ---------- actions ----------
-  async function act(name, args = {}, o = {}) {
-    const fn = OPS[name];
-    if (!fn) {
-      toast(`Unknown action: ${name}`, { kind: 'error' });
-      return null;
-    }
-    if (!app.store || app.store.mode === 'readonly') {
-      toast('Read-only. Connect GitHub in Setup to save changes.', { kind: 'error', action: { label: 'Setup', fn: () => setTab('setup') } });
-      return null;
-    }
-    const notReady = notReadyReason();
-    if (notReady) {
-      toast(notReady, { kind: 'error', action: app.status?.kind === 'error' ? { label: 'Setup', fn: () => setTab('setup') } : null });
-      return null;
-    }
-    const tz = app.state.settings?.tz || 'America/New_York';
-    const c = { now: nowISO(), today: todayISO(tz), src: 'dash' };
-    let res;
-    try {
-      res = fn(app.state, args, c);
-    } catch (err) {
-      console.error(err);
-      toast(`That didn't work: ${err?.message || err}`, { kind: 'error' });
-      return null;
-    }
-    if (!res || !res.writes || res.writes.length === 0) return res;
-    try {
-      await app.store.apply(res.writes, res.activity ?? []);
-    } catch (err) {
-      console.error(err);
-      if (err?.code === 'not_loaded') toast(err.message || 'Still loading your log…', { kind: 'error' });
-      else toast(`Couldn't save: ${err?.message || err}`, { kind: 'error' });
-      return null;
-    }
-    const msg = typeof o.toast === 'function' ? o.toast(res) : o.toast;
-    if (msg) toast(msg, { kind: o.kind ?? 'good', action: o.undo ? { label: 'Undo', fn: () => o.undo(res) } : null });
-    return res;
-  }
-
-  function setUI(patch) {
-    app.ui = { ...app.ui, ...patch };
-    schedule();
-  }
-
-  function closeOverlay() {
-    setUI({ sheet: null, sheetConfirm: null, sheetDraft: null });
-  }
-
-  function setTab(tab) {
-    if (!TABS.some((t) => t.id === tab)) return;
-    app.ui = { ...app.ui, tab };
-    try { history.replaceState(null, '', `#${tab}`); } catch { /* sandboxed */ }
-    schedule();
-    window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
-  }
-
-  function setToken(token) {
-    app.token = String(token || '').trim();
-    if (app.token) storage.set(TOKEN_KEY, app.token);
-    else storage.del(TOKEN_KEY);
-    pickStore();
-  }
-  function clearToken() { setToken(''); }
-  function saveConfig(cfg) {
-    app.config = pickConfig(cfg);
-    const saved = {};
-    for (const k of CONFIG_KEYS) saved[k] = app.config[k];
-    storage.set(CONFIG_KEY, JSON.stringify(saved));
-    pickStore();
-  }
-
-  // ---------- toasts ----------
-  const toastTimers = new Set();
-  function toast(message, { kind = 'info', action = null, ms = 4200 } = {}) {
-    const el = h('div.toast', { class: kind === 'error' ? 'is-error' : kind === 'good' ? 'is-good' : '', role: 'status' },
-      h('span', message),
-      action ? h('button.btn.btn-sm', { type: 'button', onclick: () => { el.remove(); action.fn(); } }, action.label) : null,
-    );
-    els.toasts.appendChild(el);
-    while (els.toasts.children.length > 3) els.toasts.firstChild.remove();
-    const t = setTimeout(() => {
-      toastTimers.delete(t);
-      el.remove();
-    }, ms);
-    toastTimers.add(t);
-  }
-
-  // ---------- render ----------
-  function schedule() {
-    if (app.renderQueued || app.disposed) return;
-    app.renderQueued = true;
-    requestAnimationFrame(() => {
-      app.renderQueued = false;
-      if (app.disposed) return;
-      if (app.pointerHold) {
-        app.renderHeld = true;
-        return;
-      }
-      render();
-    });
-  }
-
-  function holdRenders() {
-    app.pointerHold = true;
-    clearTimeout(app.holdTimer);
-    app.holdTimer = setTimeout(releaseRenders, POINTER_HOLD_MAX_MS);
-  }
-  function releaseSoon(ms) {
-    if (!app.pointerHold) return;
-    clearTimeout(app.holdTimer);
-    app.holdTimer = setTimeout(releaseRenders, ms);
-  }
-  function releaseRenders() {
-    clearTimeout(app.holdTimer);
-    app.holdTimer = null;
-    if (!app.pointerHold) return;
-    app.pointerHold = false;
-    if (app.renderHeld) {
-      app.renderHeld = false;
-      schedule();
-    }
-  }
-
-  function typingSegmented(container) {
-    const a = document.activeElement;
-    return !!a && a !== container && typeof container.contains === 'function' && container.contains(a) && isSegmented(a);
-  }
-
-  function renderTabs(ctx) {
-    return h('div.tabs', { role: 'tablist', 'aria-label': 'Views' },
-      TABS.map((t) => h('button.tab', {
-        type: 'button', role: 'tab',
-        'aria-selected': String(ctx.ui.tab === t.id),
-        class: ctx.ui.tab === t.id ? 'is-active' : '',
-        onclick: () => setTab(t.id),
-      }, icon(t.icon), h('span', t.label))),
-    );
-  }
-
-  function render() {
-    const ctx = buildCtx();
-    if (!app.header) app.header = mountHeader(els.header, ctx);
-    app.header.update(ctx);
-    mount(els.tabs, renderTabs(ctx));
-    if (app.renderedTab === ctx.ui.tab && typingSegmented(els.main)) {
-      app.focusHeld = true;
-    } else {
-      const view = VIEWS[ctx.ui.tab] ?? VIEWS.overview;
-      let node;
-      try {
-        node = view(ctx);
-      } catch (err) {
-        console.error(err);
-        node = h('div.panel', h('div.panel-body', h('p', `This view crashed: ${err?.message || err}`)));
-      }
-      const y = window.scrollY;
-      mount(els.main, node);
-      app.renderedTab = ctx.ui.tab;
-      if (Math.abs(window.scrollY - y) > 2) window.scrollTo(0, y);
-    }
-    let overlay = null;
-    try {
-      if (ctx.ui.sheet?.kind === 'workout') overlay = renderWorkoutSheet(ctx);
-      else if (ctx.ui.sheet?.kind === 'plan') overlay = renderPlanSheet(ctx);
-    } catch (err) {
-      console.error(err);
-    }
-    els.toasts.classList.toggle('is-beside-sheet', !!overlay && overlay.classList.contains('is-side'));
-    if (overlay) {
-      const shown = els.overlay.firstChild;
-      const sameSheet = !!shown && shown.dataset?.key != null && shown.dataset.key === overlay.dataset?.key;
-      if (sameSheet && typingSegmented(els.overlay)) app.focusHeld = true;
-      else if (shown !== overlay) mount(els.overlay, overlay);
-      els.overlay.hidden = false;
-    } else {
-      els.overlay.replaceChildren();
-      els.overlay.hidden = true;
-    }
-  }
-
-  // ---------- listeners ----------
-  const listeners = [];
-  const listen = (target, type, fn, capture = false) => {
-    target.addEventListener(type, fn, capture);
-    listeners.push(() => target.removeEventListener(type, fn, capture));
   };
-  listen(window, 'hashchange', () => setTab(tabFromHash()));
-  listen(document, 'keydown', (e) => {
-    if (e.key === 'Escape' && app.ui.sheet) closeOverlay();
-  });
-  listen(document, 'pointerdown', holdRenders, true);
-  listen(document, 'pointerup', () => releaseSoon(POINTER_RELEASE_MS), true);
-  listen(document, 'pointercancel', releaseRenders, true);
-  listen(document, 'dragstart', releaseRenders, true);
-  listen(document, 'click', () => releaseSoon(0), true);
-  listen(window, 'blur', releaseRenders);
-  listen(document, 'focusout', () => {
-    if (!app.focusHeld) return;
-    app.focusHeld = false;
-    schedule();
-  }, true);
-  const timers = [
-    setInterval(() => app.header && app.header.tick && app.header.tick(buildCtx()), 1000),
-    setInterval(schedule, 60 * 1000),
-  ];
-
-  app.act = act;
-  app.buildCtx = buildCtx;
-  app.dispose = () => {
-    app.disposed = true;
-    for (const t of timers) clearInterval(t);
-    for (const t of toastTimers) clearTimeout(t);
-    clearTimeout(app.holdTimer);
-    for (const off of listeners.splice(0)) off();
-    if (app.unsub) app.unsub();
-    if (app.unstatus) app.unstatus();
-    if (app.store && app.store.dispose) app.store.dispose();
-  };
-
-  pickStore();
-  schedule();
-  return app;
+  await go();
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') go(); });
 }
 
 if (typeof window !== 'undefined' && !window.__WK_NO_BOOT__) {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => boot());
   else boot();
 }
+
