@@ -1,0 +1,848 @@
+{
+  "schema": 1,
+  "settings": {
+    "tz": "America/New_York",
+    "owner": "Danny",
+    "weekStart": "mon",
+    "unit": "lb",
+    "dist": "mi",
+    "target": null,
+    "horizon": 14,
+    "reminders": false
+  },
+  "brief": {
+    "at": "2026-10-06T00:11:57.420Z",
+    "headline": "Logged today: Workout.",
+    "lines": [
+      "This week: 1 workout.",
+      "Nothing planned for the next week yet."
+    ],
+    "asks": []
+  },
+  "sync": {
+    "lastClaudeSync": null,
+    "lastActivitySeen": null
+  },
+  "types": {
+    "arms": {
+      "id": "arms",
+      "name": "Arms",
+      "kind": "lift",
+      "color": "#ffd23f",
+      "glyph": "AR",
+      "aliases": [
+        "arms",
+        "arm day"
+      ],
+      "order": 60,
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "cardio": {
+      "id": "cardio",
+      "name": "Cardio",
+      "kind": "cardio",
+      "color": "#3ff0c8",
+      "glyph": "CA",
+      "aliases": [
+        "cardio",
+        "run",
+        "ran",
+        "jog",
+        "bike",
+        "cycle",
+        "swim",
+        "row",
+        "hike",
+        "walk"
+      ],
+      "order": 70,
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "class": {
+      "id": "class",
+      "name": "Class",
+      "kind": "other",
+      "color": "#ff7b7b",
+      "glyph": "CL",
+      "aliases": [
+        "class",
+        "yoga",
+        "pilates",
+        "spin",
+        "barre",
+        "hiit",
+        "crossfit",
+        "boxing"
+      ],
+      "order": 80,
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "full": {
+      "id": "full",
+      "name": "Full body",
+      "kind": "lift",
+      "color": "#b48cff",
+      "glyph": "FB",
+      "aliases": [
+        "full body",
+        "total body",
+        "full"
+      ],
+      "order": 50,
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "legs": {
+      "id": "legs",
+      "name": "Legs",
+      "kind": "lift",
+      "color": "#c6f432",
+      "glyph": "LG",
+      "aliases": [
+        "legs",
+        "leg day",
+        "lower body"
+      ],
+      "order": 30,
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "mobility": {
+      "id": "mobility",
+      "name": "Mobility",
+      "kind": "other",
+      "color": "#a3b8cc",
+      "glyph": "MO",
+      "aliases": [
+        "mobility",
+        "stretch",
+        "stretching",
+        "foam roll"
+      ],
+      "order": 100,
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "other": {
+      "id": "other",
+      "name": "Workout",
+      "kind": "other",
+      "color": "#b0b8c1",
+      "glyph": "WO",
+      "aliases": [
+        "workout",
+        "gym",
+        "lift",
+        "lifted",
+        "trained",
+        "exercise"
+      ],
+      "order": 999,
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "pull": {
+      "id": "pull",
+      "name": "Pull",
+      "kind": "lift",
+      "color": "#6fc3ff",
+      "glyph": "PL",
+      "aliases": [
+        "pull",
+        "pull day",
+        "back day"
+      ],
+      "order": 20,
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "push": {
+      "id": "push",
+      "name": "Push",
+      "kind": "lift",
+      "color": "#ff5fa2",
+      "glyph": "PU",
+      "aliases": [
+        "push",
+        "push day",
+        "chest day"
+      ],
+      "order": 10,
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "sport": {
+      "id": "sport",
+      "name": "Sport",
+      "kind": "other",
+      "color": "#9fe870",
+      "glyph": "SP",
+      "aliases": [
+        "basketball",
+        "soccer",
+        "tennis",
+        "pickleball",
+        "climbing",
+        "bouldering",
+        "volleyball",
+        "frisbee",
+        "golf",
+        "squash"
+      ],
+      "order": 90,
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "upper": {
+      "id": "upper",
+      "name": "Upper",
+      "kind": "lift",
+      "color": "#ff9f43",
+      "glyph": "UP",
+      "aliases": [
+        "upper",
+        "upper body",
+        "upper day"
+      ],
+      "order": 40,
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    }
+  },
+  "exercises": {
+    "abs": {
+      "id": "abs",
+      "name": "Abs",
+      "kind": "bw",
+      "type": null,
+      "aliases": [
+        "abs",
+        "crunches",
+        "situps",
+        "sit-ups",
+        "sit ups",
+        "leg raises",
+        "hanging leg raises",
+        "ab wheel",
+        "core"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "bench": {
+      "id": "bench",
+      "name": "Bench press",
+      "kind": "lift",
+      "type": "push",
+      "aliases": [
+        "bench",
+        "bench press",
+        "bp",
+        "flat bench"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "bike": {
+      "id": "bike",
+      "name": "Bike",
+      "kind": "cardio",
+      "type": "cardio",
+      "aliases": [
+        "bike",
+        "biked",
+        "biking",
+        "cycle",
+        "cycled",
+        "cycling",
+        "peloton",
+        "stationary bike"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "cable-row": {
+      "id": "cable-row",
+      "name": "Cable row",
+      "kind": "lift",
+      "type": "pull",
+      "aliases": [
+        "cable row",
+        "seated row",
+        "seated cable row"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "calf-raise": {
+      "id": "calf-raise",
+      "name": "Calf raise",
+      "kind": "lift",
+      "type": "legs",
+      "aliases": [
+        "calf raise",
+        "calf raises",
+        "calves"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "curl": {
+      "id": "curl",
+      "name": "Biceps curl",
+      "kind": "lift",
+      "type": "pull",
+      "aliases": [
+        "curl",
+        "curls",
+        "bicep curl",
+        "bicep curls",
+        "biceps curl",
+        "db curl",
+        "hammer curl",
+        "hammer curls"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "db-bench": {
+      "id": "db-bench",
+      "name": "DB bench press",
+      "kind": "lift",
+      "type": "push",
+      "aliases": [
+        "db bench",
+        "dumbbell bench",
+        "db press",
+        "dumbbell press"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "db-row": {
+      "id": "db-row",
+      "name": "DB row",
+      "kind": "lift",
+      "type": "pull",
+      "aliases": [
+        "db row",
+        "dumbbell row",
+        "one arm row"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "db-shoulder": {
+      "id": "db-shoulder",
+      "name": "DB shoulder press",
+      "kind": "lift",
+      "type": "push",
+      "aliases": [
+        "db shoulder press",
+        "dumbbell shoulder press",
+        "seated db press"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "deadlift": {
+      "id": "deadlift",
+      "name": "Deadlift",
+      "kind": "lift",
+      "type": "pull",
+      "aliases": [
+        "deadlift",
+        "deadlifts",
+        "dl",
+        "deads"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "dips": {
+      "id": "dips",
+      "name": "Dips",
+      "kind": "bw",
+      "type": "push",
+      "aliases": [
+        "dip",
+        "dips"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "elliptical": {
+      "id": "elliptical",
+      "name": "Elliptical",
+      "kind": "cardio",
+      "type": "cardio",
+      "aliases": [
+        "elliptical"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "face-pull": {
+      "id": "face-pull",
+      "name": "Face pull",
+      "kind": "lift",
+      "type": "pull",
+      "aliases": [
+        "face pull",
+        "face pulls"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "fly": {
+      "id": "fly",
+      "name": "Chest fly",
+      "kind": "lift",
+      "type": "push",
+      "aliases": [
+        "fly",
+        "flys",
+        "flies",
+        "chest fly",
+        "pec deck",
+        "cable fly"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "front-squat": {
+      "id": "front-squat",
+      "name": "Front squat",
+      "kind": "lift",
+      "type": "legs",
+      "aliases": [
+        "front squat",
+        "front squats"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "hike": {
+      "id": "hike",
+      "name": "Hike",
+      "kind": "cardio",
+      "type": "cardio",
+      "aliases": [
+        "hike",
+        "hiked",
+        "hiking"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "hip-thrust": {
+      "id": "hip-thrust",
+      "name": "Hip thrust",
+      "kind": "lift",
+      "type": "legs",
+      "aliases": [
+        "hip thrust",
+        "hip thrusts",
+        "glute bridge",
+        "glute bridges"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "incline-bench": {
+      "id": "incline-bench",
+      "name": "Incline bench",
+      "kind": "lift",
+      "type": "push",
+      "aliases": [
+        "incline bench",
+        "incline press",
+        "incline"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "incline-db": {
+      "id": "incline-db",
+      "name": "Incline DB press",
+      "kind": "lift",
+      "type": "push",
+      "aliases": [
+        "incline db",
+        "incline dumbbell",
+        "incline db press"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "lat-pulldown": {
+      "id": "lat-pulldown",
+      "name": "Lat pulldown",
+      "kind": "lift",
+      "type": "pull",
+      "aliases": [
+        "lat pulldown",
+        "pulldown",
+        "pulldowns",
+        "lat pull down",
+        "lat pulldowns"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "lateral-raise": {
+      "id": "lateral-raise",
+      "name": "Lateral raise",
+      "kind": "lift",
+      "type": "push",
+      "aliases": [
+        "lateral raise",
+        "lateral raises",
+        "lat raise",
+        "lat raises",
+        "side raises",
+        "laterals"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "leg-curl": {
+      "id": "leg-curl",
+      "name": "Leg curl",
+      "kind": "lift",
+      "type": "legs",
+      "aliases": [
+        "leg curl",
+        "leg curls",
+        "hamstring curl",
+        "hamstring curls"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "leg-ext": {
+      "id": "leg-ext",
+      "name": "Leg extension",
+      "kind": "lift",
+      "type": "legs",
+      "aliases": [
+        "leg extension",
+        "leg extensions",
+        "leg ext"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "leg-press": {
+      "id": "leg-press",
+      "name": "Leg press",
+      "kind": "lift",
+      "type": "legs",
+      "aliases": [
+        "leg press"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "lunge": {
+      "id": "lunge",
+      "name": "Lunges",
+      "kind": "lift",
+      "type": "legs",
+      "aliases": [
+        "lunge",
+        "lunges",
+        "walking lunges",
+        "split squat",
+        "split squats",
+        "bulgarian split squat",
+        "bulgarians"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "ohp": {
+      "id": "ohp",
+      "name": "Overhead press",
+      "kind": "lift",
+      "type": "push",
+      "aliases": [
+        "ohp",
+        "overhead press",
+        "military press",
+        "shoulder press",
+        "press"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "plank": {
+      "id": "plank",
+      "name": "Plank",
+      "kind": "time",
+      "type": null,
+      "aliases": [
+        "plank",
+        "planks"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "pullup": {
+      "id": "pullup",
+      "name": "Pull-ups",
+      "kind": "bw",
+      "type": "pull",
+      "aliases": [
+        "pullup",
+        "pullups",
+        "pull-up",
+        "pull-ups",
+        "pull up",
+        "pull ups",
+        "chinup",
+        "chinups",
+        "chin-ups",
+        "chin ups"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "pushup": {
+      "id": "pushup",
+      "name": "Push-ups",
+      "kind": "bw",
+      "type": "push",
+      "aliases": [
+        "pushup",
+        "pushups",
+        "push-up",
+        "push-ups",
+        "push up",
+        "push ups"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "rdl": {
+      "id": "rdl",
+      "name": "Romanian deadlift",
+      "kind": "lift",
+      "type": "legs",
+      "aliases": [
+        "rdl",
+        "rdls",
+        "romanian deadlift",
+        "romanian deadlifts",
+        "stiff leg deadlift"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "row": {
+      "id": "row",
+      "name": "Barbell row",
+      "kind": "lift",
+      "type": "pull",
+      "aliases": [
+        "row",
+        "rows",
+        "barbell row",
+        "bb row",
+        "bent over row"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "row-erg": {
+      "id": "row-erg",
+      "name": "Rower",
+      "kind": "cardio",
+      "type": "cardio",
+      "aliases": [
+        "rower",
+        "erg",
+        "rowing machine",
+        "rowed"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "run": {
+      "id": "run",
+      "name": "Run",
+      "kind": "cardio",
+      "type": "cardio",
+      "aliases": [
+        "run",
+        "ran",
+        "running",
+        "jog",
+        "jogged",
+        "jogging",
+        "treadmill"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "shrug": {
+      "id": "shrug",
+      "name": "Shrugs",
+      "kind": "lift",
+      "type": "pull",
+      "aliases": [
+        "shrug",
+        "shrugs"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "squat": {
+      "id": "squat",
+      "name": "Back squat",
+      "kind": "lift",
+      "type": "legs",
+      "aliases": [
+        "squat",
+        "squats",
+        "back squat",
+        "back squats"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "stairs": {
+      "id": "stairs",
+      "name": "Stair climber",
+      "kind": "cardio",
+      "type": "cardio",
+      "aliases": [
+        "stairmaster",
+        "stair master",
+        "stair climber",
+        "stairs"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "swim": {
+      "id": "swim",
+      "name": "Swim",
+      "kind": "cardio",
+      "type": "cardio",
+      "aliases": [
+        "swim",
+        "swam",
+        "swimming",
+        "laps"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "triceps": {
+      "id": "triceps",
+      "name": "Triceps pushdown",
+      "kind": "lift",
+      "type": "push",
+      "aliases": [
+        "tricep",
+        "triceps",
+        "pushdown",
+        "pushdowns",
+        "tricep pushdown",
+        "tricep extension",
+        "skull crushers",
+        "skullcrushers"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "walk": {
+      "id": "walk",
+      "name": "Walk",
+      "kind": "cardio",
+      "type": "cardio",
+      "aliases": [
+        "walk",
+        "walked",
+        "walking",
+        "incline walk"
+      ],
+      "notes": "",
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    }
+  },
+  "plans": {},
+  "workouts": {
+    "w_ckfqtzkk": {
+      "id": "w_ckfqtzkk",
+      "d": "2026-10-05",
+      "time": null,
+      "type": "other",
+      "title": "Workout",
+      "min": null,
+      "items": [],
+      "notes": "Logged in the EF Console; details not recorded yet.",
+      "feel": null,
+      "plan": null,
+      "created": "2026-10-05T23:37:01.943Z",
+      "updated": "2026-10-05T23:37:01.943Z",
+      "src": "chat"
+    }
+  },
+  "body": {},
+  "activity": {
+    "a_q24nt71c": {
+      "id": "a_q24nt71c",
+      "at": "2026-10-05T23:37:01.943Z",
+      "src": "chat",
+      "type": "log",
+      "ref": "w_ckfqtzkk",
+      "title": "Workout",
+      "from": null,
+      "to": "2026-10-05"
+    }
+  }
+}

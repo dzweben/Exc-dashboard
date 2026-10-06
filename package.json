@@ -1,0 +1,22 @@
+{
+  "name": "workout-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Danny's workout log: lifts, cardio, PRs, streaks and a 2-week plan, with Claude as the chat front end.",
+  "type": "module",
+  "bin": {
+    "wk": "bin/wk.mjs"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test test/*.test.js",
+    "shot": "node scripts/screenshot.mjs",
+    "wk": "node bin/wk.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
