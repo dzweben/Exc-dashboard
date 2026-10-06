@@ -8,7 +8,7 @@
     "dist": "mi",
     "target": null,
     "horizon": 14,
-    "reminders": true,
+    "reminders": false,
     "plates": true
   },
   "brief": {
@@ -21,8 +21,8 @@
     "asks": []
   },
   "sync": {
-    "lastClaudeSync": "2026-10-06T01:04:55.241Z",
-    "lastActivitySeen": "2026-10-06T01:04:55.241Z"
+    "lastClaudeSync": "2026-10-06T04:23:51.638Z",
+    "lastActivitySeen": "2026-10-06T04:23:51.638Z"
   },
   "types": {
     "arms": {
@@ -1162,6 +1162,16 @@
       "type": "ex",
       "ref": "warrior-upper-body-stretch",
       "title": "Warrior upper-body stretch",
+      "from": null,
+      "to": null
+    },
+    "a_rzekpgpr": {
+      "id": "a_rzekpgpr",
+      "at": "2026-10-06T04:26:17.312Z",
+      "src": "chat",
+      "type": "settings",
+      "ref": "settings",
+      "title": "Settings",
       "from": null,
       "to": null
     },
