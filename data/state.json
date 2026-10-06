@@ -8,14 +8,15 @@
     "dist": "mi",
     "target": null,
     "horizon": 14,
-    "reminders": false
+    "reminders": true,
+    "plates": true
   },
   "brief": {
-    "at": "2026-10-06T00:11:57.420Z",
-    "headline": "Logged today: Workout.",
+    "at": "2026-10-06T00:16:51.570Z",
+    "headline": "Logged today: Calves + soleus stretch + lat pulldown.",
     "lines": [
-      "This week: 1 workout.",
-      "Nothing planned for the next week yet."
+      "This week: 1 workout · 750 lb volume.",
+      "Next time: Tib raise (never)."
     ],
     "asks": []
   },
@@ -77,6 +78,23 @@
         "boxing"
       ],
       "order": 80,
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "feet": {
+      "id": "feet",
+      "name": "Feet & calves",
+      "kind": "lift",
+      "color": "#ff8fd1",
+      "glyph": "FT",
+      "aliases": [
+        "feet",
+        "foot",
+        "calves",
+        "calf day",
+        "shins"
+      ],
+      "order": 55,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -230,6 +248,7 @@
         "core"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -245,6 +264,7 @@
         "flat bench"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -264,6 +284,7 @@
         "stationary bike"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -278,6 +299,7 @@
         "seated cable row"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -285,13 +307,14 @@
       "id": "calf-raise",
       "name": "Calf raise",
       "kind": "lift",
-      "type": "legs",
+      "type": "feet",
       "aliases": [
         "calf raise",
         "calf raises",
         "calves"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -311,6 +334,7 @@
         "hammer curls"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -326,6 +350,7 @@
         "dumbbell press"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -340,6 +365,7 @@
         "one arm row"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -354,6 +380,7 @@
         "seated db press"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -369,6 +396,7 @@
         "deads"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -382,6 +410,7 @@
         "dips"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -394,6 +423,7 @@
         "elliptical"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -407,6 +437,7 @@
         "face pulls"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -424,6 +455,7 @@
         "cable fly"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -437,6 +469,7 @@
         "front squats"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -451,6 +484,7 @@
         "hiking"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -466,6 +500,7 @@
         "glute bridges"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -480,6 +515,7 @@
         "incline"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -494,6 +530,7 @@
         "incline db press"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -510,6 +547,7 @@
         "lat pulldowns"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -527,6 +565,7 @@
         "laterals"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -542,6 +581,7 @@
         "hamstring curls"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -556,6 +596,7 @@
         "leg ext"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -568,6 +609,7 @@
         "leg press"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -586,6 +628,7 @@
         "bulgarians"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -602,6 +645,7 @@
         "press"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -615,6 +659,7 @@
         "planks"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -636,6 +681,7 @@
         "chin ups"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -653,6 +699,7 @@
         "push ups"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -669,6 +716,7 @@
         "stiff leg deadlift"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -685,6 +733,7 @@
         "bent over row"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -700,6 +749,7 @@
         "rowed"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -718,6 +768,7 @@
         "treadmill"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -731,6 +782,45 @@
         "shrugs"
       ],
       "notes": "",
+      "rotation": false,
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "sl-calf-raise": {
+      "id": "sl-calf-raise",
+      "name": "Single-leg calf raise",
+      "kind": "lift",
+      "type": "feet",
+      "aliases": [
+        "single leg calf raise",
+        "single leg calf raises",
+        "single-leg calf raise",
+        "single-leg calf raises",
+        "one leg calf raise",
+        "one leg calf raises",
+        "smith calf raise one leg",
+        "smith calf raises one leg",
+        "smith single leg calf raise",
+        "smith single leg calf raises"
+      ],
+      "notes": "Stay at 90 (plates); grow range / foot expression",
+      "rotation": false,
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "soleus-stretch": {
+      "id": "soleus-stretch",
+      "name": "Soleus stretch",
+      "kind": "time",
+      "type": "mobility",
+      "aliases": [
+        "soleus stretch",
+        "weighted soleus stretch",
+        "soleus stretches",
+        "smith soleus stretch"
+      ],
+      "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -746,6 +836,7 @@
         "back squats"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -761,6 +852,7 @@
         "stairs"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -776,6 +868,24 @@
         "laps"
       ],
       "notes": "",
+      "rotation": false,
+      "archived": false,
+      "created": "2026-10-05T00:00:00.000Z"
+    },
+    "tib-raise": {
+      "id": "tib-raise",
+      "name": "Tib raise",
+      "kind": "bw",
+      "type": "feet",
+      "aliases": [
+        "tib raise",
+        "tib raises",
+        "tibialis raise",
+        "tibialis raises",
+        "tib bar"
+      ],
+      "notes": "",
+      "rotation": true,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -795,6 +905,7 @@
         "skullcrushers"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
@@ -810,6 +921,7 @@
         "incline walk"
       ],
       "notes": "",
+      "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     }
@@ -821,19 +933,94 @@
       "d": "2026-10-05",
       "time": null,
       "type": "other",
-      "title": "Workout",
+      "title": "Calves + soleus stretch + lat pulldown",
       "min": null,
-      "items": [],
-      "notes": "Logged in the EF Console; details not recorded yet.",
+      "items": [
+        {
+          "id": "i1",
+          "ex": "sl-calf-raise",
+          "sets": [
+            {
+              "r": 2,
+              "w": 90
+            },
+            {
+              "r": 2,
+              "w": 90
+            }
+          ],
+          "dist": null,
+          "min": null,
+          "notes": "half reps / bottom only, per side"
+        },
+        {
+          "id": "i2",
+          "ex": "soleus-stretch",
+          "sets": [
+            {
+              "r": null,
+              "w": 90,
+              "s": 35
+            }
+          ],
+          "dist": null,
+          "min": null,
+          "notes": "per side"
+        },
+        {
+          "id": "i3",
+          "ex": "lat-pulldown",
+          "sets": [
+            {
+              "r": 3,
+              "w": 130
+            }
+          ],
+          "dist": null,
+          "min": null,
+          "notes": ""
+        }
+      ],
+      "notes": "",
       "feel": null,
       "plan": null,
       "created": "2026-10-05T23:37:01.943Z",
-      "updated": "2026-10-05T23:37:01.943Z",
+      "updated": "2026-10-06T00:14:58.488Z",
       "src": "chat"
     }
   },
   "body": {},
   "activity": {
+    "a_1409vg4n": {
+      "id": "a_1409vg4n",
+      "at": "2026-10-06T00:14:58.303Z",
+      "src": "chat",
+      "type": "settings",
+      "ref": "settings",
+      "title": "Settings",
+      "from": null,
+      "to": null
+    },
+    "a_hgkhzld8": {
+      "id": "a_hgkhzld8",
+      "at": "2026-10-06T00:14:58.392Z",
+      "src": "chat",
+      "type": "ex",
+      "ref": "calf-raise",
+      "title": "Calf raise",
+      "from": null,
+      "to": null
+    },
+    "a_o30vnc91": {
+      "id": "a_o30vnc91",
+      "at": "2026-10-06T00:14:58.606Z",
+      "src": "chat",
+      "type": "ex",
+      "ref": "sl-calf-raise",
+      "title": "Single-leg calf raise",
+      "from": null,
+      "to": null
+    },
     "a_q24nt71c": {
       "id": "a_q24nt71c",
       "at": "2026-10-05T23:37:01.943Z",
@@ -843,6 +1030,26 @@
       "title": "Workout",
       "from": null,
       "to": "2026-10-05"
+    },
+    "a_ud03w70i": {
+      "id": "a_ud03w70i",
+      "at": "2026-10-06T00:14:58.734Z",
+      "src": "chat",
+      "type": "ex",
+      "ref": "tib-raise",
+      "title": "Tib raise",
+      "from": null,
+      "to": null
+    },
+    "a_uk4bjp5w": {
+      "id": "a_uk4bjp5w",
+      "at": "2026-10-06T00:14:58.488Z",
+      "src": "chat",
+      "type": "edit",
+      "ref": "w_ckfqtzkk",
+      "title": "Calves + soleus stretch + lat pulldown",
+      "from": null,
+      "to": null
     }
   }
 }
