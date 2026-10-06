@@ -3,7 +3,7 @@
 // same parser chat uses, so the website and Claude agree on what numbers mean.
 import { h, mount, isSaneDate } from '../dom.js';
 import { fmtDay } from '../../engine/dates.js';
-import { parseNumbers, parseWorkout, fmtItem, trimNum } from '../../engine/parse.js';
+import { parseNumbers, parseWorkout, fmtItem, trimNum, typeTitle } from '../../engine/parse.js';
 import { fmtPR, lastSeen } from '../../engine/stats.js';
 import { ic, typeMark, typeStyle, keepFocus } from './common.js';
 
@@ -18,7 +18,7 @@ export function itemText(item) {
     else groups.push({ n: 1, r: s.r, w: s.w, s: s.s ?? null });
   }
   for (const g of groups) {
-    if (g.s) parts.push(`${g.n}x${g.s}s`);
+    if (g.s) parts.push(`${g.n}x${g.s}s${g.w != null ? ` @${trimNum(g.w)}` : ''}`);
     else if (g.r != null && g.w != null) parts.push(g.n > 1 ? `${g.n}x${g.r} @${trimNum(g.w)}` : `${trimNum(g.w)}x${g.r}`);
     else if (g.r != null) parts.push(g.n > 1 ? `${g.n}x${g.r}` : `${g.r} reps`);
     else if (g.w != null) parts.push(`@${trimNum(g.w)}`);
@@ -301,7 +301,7 @@ function newPlanSheet(ctx, sh) {
           const p = text ? parseWorkout(text, { today: ctx.today, state: ctx.state, mode: 'plan' }) : { items: [] };
           const type = ctx.ui.sheetDraft?.type ?? (text ? p.type : 'other');
           const t = ctx.type(type);
-          const title = t.kind === 'lift' ? (t.id === 'full' ? 'Full body' : `${t.name.replace(/s$/, '')} day`) : t.name;
+          const title = typeTitle(t);
           const res = await ctx.act('planWorkout', { d, type, title, items: p.items ?? [] }, { toast: `Planned ${title} · ${fmtDay(d)}` });
           if (res?.writes?.length) ctx.closeOverlay();
         },

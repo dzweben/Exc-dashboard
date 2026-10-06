@@ -134,10 +134,6 @@ export function parseNumbers(segment, { unit = 'lb', dist: distUnit = 'mi' } = {
   take(/(?<![\w.:])(?:in\s+)?(\d{1,3}):([0-5]\d)(?![\d:])/i, (m) => {
     min = Math.round((parseInt(m[1], 10) + parseInt(m[2], 10) / 60) * 100) / 100;
   });
-  // seconds for holds: 3x45s, 60 sec
-  take(new RegExp(`(?<![\\w.])(\\d+)\\s*[x×*]\\s*(\\d+)\\s*(?:s|sec|secs|seconds)(?![a-z])`, 'i'), (m) => push(parseInt(m[1], 10), null, null, parseInt(m[2], 10)));
-  take(/(?<![\w.])(\d+)\s*(?:s|sec|secs|seconds)(?![a-z])/i, (m) => push(1, null, null, parseInt(m[1], 10)));
-
   // "@185", "at 185 lbs", "+25" (added weight for bodyweight work), "bw"
   const wAt = t.match(new RegExp(`(?:@|\\bat\\s+|\\bw/\\s*)\\s*${NUM}${WUNIT}`, 'i'));
   if (wAt) {
@@ -158,6 +154,10 @@ export function parseNumbers(segment, { unit = 'lb', dist: distUnit = 'mi' } = {
       cut(lone);
     }
   }
+
+  // seconds for holds: 3x45s, 60 sec
+  take(new RegExp(`(?<![\\w.])(\\d+)\\s*[x×*]\\s*(\\d+)\\s*(?:s|sec|secs|seconds)(?![a-z])`, 'i'), (m) => push(parseInt(m[1], 10), null, defaultW, parseInt(m[2], 10)));
+  take(/(?<![\w.])(\d+)\s*(?:s|sec|secs|seconds)(?![a-z])/i, (m) => push(1, null, defaultW, parseInt(m[1], 10)));
 
   // "3 sets of 8", "3 sets of 8 reps"
   take(/(?<![\w.])(\d+)\s*sets?\s*(?:of|x)\s*(\d+)(?:\s*reps?)?/i, (m) => push(parseInt(m[1], 10), parseInt(m[2], 10), defaultW));
@@ -192,7 +192,7 @@ export function parseNumbers(segment, { unit = 'lb', dist: distUnit = 'mi' } = {
       if (m[2] || v >= 45) push(1, null, toUnit(v, m[2], unit));
       else if (v >= 1) push(1, Math.round(v), null); // "pullups 12": reps
     });
-  } else if (defaultW != null && !sets.length) {
+  } else if (defaultW != null && !sets.length && min == null) {
     push(1, null, defaultW);
   }
   return { sets, dist, min, added, rest: t.replace(/\s+/g, ' ').trim() };
@@ -201,7 +201,7 @@ export function parseNumbers(segment, { unit = 'lb', dist: distUnit = 'mi' } = {
 // ---------------------------------------------------------------- whole line
 
 const LEAD_RE = /^(?:(?:i|just|today|ok|so|also|and|then)\s+)*(?:(?:did|done|finished|hit|went to|went|got in|got|logged?|log|completed|crushed|smashed|knocked out|had|played|play|took|take)\s+)?(?:(?:a|an|my|the|some)\s+)?/i;
-const FILLER_RE = /\b(?:did|done|finished|hit|went|played|play|took|to|the|gym|workout|session|day|today|tonight|this morning|this afternoon|this evening|and|then|with|of|for|my|a|an|some|felt|great|good|easy|hard|ok|reps?|sets?|total|about|around|~|ish|did|plus|at)\b/gi;
+const FILLER_RE = /\b(?:did|done|finished|hit|went|played|play|took|to|the|gym|workout|session|day|today|tonight|this morning|this afternoon|this evening|and|then|with|of|for|my|a|an|some|felt|great|good|easy|hard|ok|reps?|sets?|plates?|total|about|around|~|ish|did|plus|at)\b/gi;
 
 /**
  * parseWorkout(text, { today, state, mode }) →
@@ -234,29 +234,52 @@ export function parseWorkout(text, { today, state = {}, mode = 'log' } = {}) {
   const exAliases = new Set(exTable.map((r) => r.alias));
   const typeTable = aliasTable(state.types).filter((r) => !exAliases.has(r.alias));
   const GENERIC = new Set(['class', 'workout', 'gym', 'lift', 'lifted', 'trained', 'exercise', 'full']);
+  // words inside an exercise name ("soleus stretch") never count as a type ("stretch")
+  const masked = () => {
+    let m = ` ${body.toLowerCase()} `;
+    for (const row of exTable) {
+      const re = new RegExp(`(^|[^a-z0-9])(${esc(row.alias)})(?=$|[^a-z0-9])`, 'g');
+      m = m.replace(re, (_, pre, w) => pre + '\u0000'.repeat(w.length));
+    }
+    return m.slice(1, -1);
+  };
   for (let guard = 0; guard < 4; guard++) {
-    const typeHit = findAlias(body, typeTable);
+    const typeHit = findAlias(masked(), typeTable);
     if (!typeHit) break;
     if (!out.type) out.type = typeHit.id;
     if (!out.typeText || (GENERIC.has(out.typeText) && !GENERIC.has(typeHit.alias))) out.typeText = typeHit.alias;
-    const re = new RegExp(`${esc(typeHit.alias)}(\\s+(?:day|session|workout|class))?`, 'i');
-    body = body.replace(re, ' ');
+    const after = body.slice(typeHit.index + typeHit.alias.length).match(/^\s+(?:day|session|workout|class)\b/i);
+    body = `${body.slice(0, typeHit.index)} ${body.slice(typeHit.index + typeHit.alias.length + (after ? after[0].length : 0))}`;
   }
   body = body.replace(LEAD_RE, '');
+  body = body.replace(/\(([^)]*)\)/g, (m) => m.replace(/[,;:]/g, ' /'));
   // segments: commas / semicolons / newlines / " and " / " then " / " + "
   const segments = body
     .split(/\s*(?:[,;\n]|\band then\b|\bthen\b|\band\b|\s\+\s|:(?!\d))\s*/i)
     .map((s) => s.trim())
     .filter(Boolean);
 
-  for (const seg of segments) {
+  for (let seg of segments) {
+    const itemNotes = [];
+    seg = seg.replace(/\(([^)]*)\)/g, (_, n) => {
+      if (n.trim()) itemNotes.push(n.trim());
+      return ' ';
+    });
+    seg = seg.replace(/\b(?:per|each|a|on each)\s+(side|leg|arm)\b/gi, (_, w) => {
+      itemNotes.push(`per ${w.toLowerCase()}`);
+      return ' ';
+    });
+    seg = seg.replace(/\bhalf[- ]reps?\b/gi, () => {
+      itemNotes.push('half reps');
+      return ' reps ';
+    });
     const nums = parseNumbers(seg, { unit: settings.unit ?? 'lb', dist: settings.dist ?? 'mi' });
     const words = nums.rest.replace(LEAD_RE, '').trim();
     const hit = words ? findAlias(words, exTable) : null;
     const hasNumbers = nums.sets.length || nums.dist != null || nums.min != null;
     if (hit) {
       const doc = state.exercises?.[hit.id];
-      out.items.push({ ex: hit.id, name: doc?.name ?? hit.id, isNew: false, kind: doc?.kind ?? 'lift', sets: nums.sets, dist: nums.dist, min: nums.min, notes: '', added: nums.added });
+      out.items.push({ ex: hit.id, name: doc?.name ?? hit.id, isNew: false, kind: doc?.kind ?? 'lift', sets: nums.sets, dist: nums.dist, min: nums.min, notes: itemNotes.join(', '), added: nums.added });
       continue;
     }
     const nameWords = words.replace(FILLER_RE, ' ').replace(/[^a-z0-9' -]/gi, ' ').replace(/\s+/g, ' ').trim();
@@ -283,7 +306,7 @@ export function parseWorkout(text, { today, state = {}, mode = 'log' } = {}) {
     }
     const name = nameWords.replace(/\b\w/g, (c) => c.toUpperCase()).replace(/^(.)/, (c) => c.toUpperCase());
     const kind = nums.dist != null ? 'cardio' : nums.sets.some((s) => s.w != null) ? 'lift' : nums.sets.some((s) => s.s) ? 'time' : nums.sets.length ? 'bw' : nums.min != null ? 'time' : 'lift';
-    out.items.push({ ex: slugify(name), name, isNew: !state.exercises?.[slugify(name)], kind, sets: nums.sets, dist: nums.dist, min: nums.min, notes: '', added: nums.added });
+    out.items.push({ ex: slugify(name), name, isNew: !state.exercises?.[slugify(name)], kind, sets: nums.sets, dist: nums.dist, min: nums.min, notes: itemNotes.join(', '), added: nums.added });
   }
 
   // a bodyweight item's "@25" / "+25" is added weight; a lift item with bare reps keeps w null
@@ -307,6 +330,7 @@ export function inferType(items, state = {}) {
   }
   const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1]);
   if (!ranked.length) return 'other';
+  if (ranked.length > 1 && ranked[0][1] === ranked[1][1] && ranked[0][1] === 1) return 'other'; // a mixed session
   if (ranked.length >= 2 && ranked[1][1] >= 2 && state.types?.full) {
     const top = new Set(ranked.slice(0, 2).map(([t]) => t));
     if (top.has('push') && top.has('pull') && state.types?.upper) return 'upper';
@@ -317,7 +341,7 @@ export function inferType(items, state = {}) {
 
 function titleFor(w, state) {
   const type = state.types?.[w.type];
-  if (type && type.kind === 'lift') return type.id === 'full' ? 'Full body' : `${type.name.replace(/s$/, '')} day`;
+  if (type && type.kind === 'lift') return typeTitle(type);
   if (w.items.length === 1 && w.items[0].kind === 'cardio') {
     const it = w.items[0];
     const unit = state.settings?.dist ?? 'mi';
@@ -326,7 +350,15 @@ function titleFor(w, state) {
   if (w.typeText && type && !['workout', 'gym', 'lift', 'lifted', 'trained', 'exercise'].includes(w.typeText)) return w.typeText.replace(/^./, (c) => c.toUpperCase());
   if (type && type.id !== 'other') return type.name;
   if (w.items.length === 1) return w.items[0].name;
-  return 'Workout';
+  if (w.items.length && w.items.length <= 3) return w.items.map((i, k) => (k ? i.name.toLowerCase() : i.name)).join(' + ');
+  return w.items.length ? 'Mixed session' : 'Workout';
+}
+
+/** "Push day", "Leg day", "Full body", "Feet & calves", "Cardio". */
+export function typeTitle(type) {
+  if (!type) return 'Workout';
+  if (type.kind !== 'lift' || /[\s&]/.test(type.name)) return type.name;
+  return `${type.name.replace(/s$/, '')} day`;
 }
 
 export const trimNum = (n) => (n == null ? '' : String(Math.round(n * 100) / 100));
@@ -344,7 +376,7 @@ export function fmtItem(item, settings = {}) {
       else groups.push({ n: 1, r: s.r, w: s.w, s: s.s ?? null });
     }
     parts.push(groups.map((g) => {
-      if (g.s) return `${g.n > 1 ? `${g.n}×` : ''}${g.s}s`;
+      if (g.s) return `${g.n > 1 ? `${g.n}×` : ''}${g.s}s${g.w != null ? ` @${trimNum(g.w)}` : ''}`;
       const reps = g.r == null ? '' : g.n > 1 ? `${g.n}×${g.r}` : `${g.r}`;
       const w = g.w == null ? '' : `${trimNum(g.w)}`;
       if (!reps) return `${g.n > 1 ? `${g.n}×` : ''}${w}${w ? ` ${unit}` : ''}`;

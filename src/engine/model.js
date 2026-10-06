@@ -20,7 +20,8 @@ export const DEFAULT_SETTINGS = Object.freeze({
   dist: 'mi', // distance unit
   target: null, // workouts per week goal, or null (no goal)
   horizon: 14,
-  reminders: false, // Danny opts in; Claude never nudges otherwise
+  reminders: true, // suggest what hasn't been hit lately (Danny asked for these)
+  plates: true, // barbell / Smith weights are plates only; the bar is never counted
 });
 
 const ID_ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyz';
@@ -66,7 +67,8 @@ export function normalizeSettings(partial = {}) {
     dist: p.dist === 'km' ? 'km' : 'mi',
     target: target === null || target <= 0 ? null : Math.min(14, Math.round(target)),
     horizon: Math.max(7, Math.min(42, Math.round(num(p.horizon, DEFAULT_SETTINGS.horizon)))),
-    reminders: p.reminders === true,
+    reminders: p.reminders !== false,
+    plates: p.plates !== false,
   };
 }
 
@@ -145,7 +147,8 @@ export function normalizeExercise(partial = {}, ctx = {}) {
     kind: EX_KINDS.includes(p.kind) ? p.kind : 'lift',
     type: str(p.type) || null, // usual split (push/pull/legs…) or null
     aliases: aliasList(p.aliases),
-    notes: str(p.notes),
+    notes: str(p.notes), // Danny's goal for it ("stay at 90, grow the range")
+    rotation: p.rotation === true, // on the "what's due" list even before it's logged
     archived: p.archived === true,
     created: str(p.created) || now,
   };

@@ -205,6 +205,14 @@ export function mountHeader(el, ctx0) {
         ),
       );
     }
+    const sug = ctx.vm.suggest;
+    if (sug.length && ctx.state.settings?.reminders !== false) {
+      return h('div.nx.is-sug',
+        h('span.nx-label', 'TODAY COULD BE'),
+        h('span.nx-big.shout', sug.map((r) => r.name).join(' / ')),
+        h('span.nx-sub', sug.map((r) => `${r.name.toLowerCase()}: ${r.daysSince == null ? 'never logged' : `${r.daysSince}d ago`}${r.last ? ` · last ${fmtItem(r.last.item, ctx.state.settings)}` : ''}`).join('  ·  ')),
+      );
+    }
     const n = tv.next;
     return h('div.nx',
       h('span.nx-label', n ? 'NEXT UP' : 'REST DAY'),

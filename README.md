@@ -1,11 +1,14 @@
 # Workout Console
 
-Danny's workout log: lifts with sets/reps/weights, cardio, classes, PRs,
-weekly volume, a streak + heatmap, a 2-week plan, and an optional body-weight
-log, with Claude as the chat front end. Same setup as the
+Danny's workout log. No routine: go in, pick a couple of exercises that fit
+the goals (strength, range of motion, well-being), stay easy, edge past last
+time. The log remembers everything and shows what hasn't been hit lately
+("today could be tib raises or soleus stretch"). Also PRs, weekly volume, a
+streak + heatmap, optional plans and body weight, with Claude as the chat
+front end. Weights are plates only (the bar is never counted). Same setup as the
 [EF Console](https://github.com/dzweben/ef-dashboard-management).
 
-- **Website:** https://dzweben.github.io/workout-dashboard/
+- **Website:** https://dzweben.github.io/exc-dashboard/
   Type workouts into the terminal bar (`push day: bench 3x8 @185, 30 min`),
   switch it to PLAN for the next two weeks, tap a workout to fix its numbers,
   hit "Did it" on a planned day. Every change is a commit under Danny's name.
@@ -21,7 +24,7 @@ log, with Claude as the chat front end. Same setup as the
    Source: Deploy from a branch**, branch `main`, folder `/docs` → Save.
 2. **Let the site save.** Create a fine-grained token:
    https://github.com/settings/personal-access-tokens/new?name=Workout+Console&target_name=dzweben&expires_in=365&contents=write
-   - Repository access: **Only select repositories → workout-dashboard**
+   - Repository access: **Only select repositories → exc-dashboard**
    - Repository permissions: **Contents → Read and write**
    Open the site → **Setup** → paste → Save token. Once per device. It stays in
    that browser's localStorage only (shared by all your github.io sites, so keep

@@ -6,16 +6,13 @@ import {
   normalizeSettings, normalizeBrief, normalizeItem,
 } from './model.js';
 import { DEFAULT_TYPES, DEFAULT_EXERCISES } from './defaults.js';
+import { typeTitle } from './parse.js';
+
+export { typeTitle };
 import { prsForWorkout } from './stats.js';
 
 const NONE = (state) => ({ state, writes: [], activity: [] });
 
-/** Default title for a type: "Push day", "Leg day", "Full body", "Cardio". */
-export function typeTitle(type) {
-  if (!type) return 'Workout';
-  if (type.kind === 'lift') return type.id === 'full' ? 'Full body' : `${type.name.replace(/s$/, '')} day`;
-  return type.name;
-}
 
 function activityEntry(ctx, type, ref, title, extra = {}) {
   return { id: makeId('a_'), at: ctx.now, src: ctx.src ?? 'chat', type, ref: ref ?? null, title: String(title ?? ''), from: extra.from ?? null, to: extra.to ?? null };

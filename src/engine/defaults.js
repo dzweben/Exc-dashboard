@@ -11,6 +11,7 @@ export const DEFAULT_TYPES = [
   type('legs', 'Legs', 'lift', '#c6f432', 'LG', ['legs', 'leg day', 'lower body'], 30),
   type('upper', 'Upper', 'lift', '#ff9f43', 'UP', ['upper', 'upper body', 'upper day'], 40),
   type('full', 'Full body', 'lift', '#b48cff', 'FB', ['full body', 'total body', 'full'], 50),
+  type('feet', 'Feet & calves', 'lift', '#ff8fd1', 'FT', ['feet', 'foot', 'calves', 'calf day', 'shins'], 55),
   type('arms', 'Arms', 'lift', '#ffd23f', 'AR', ['arms', 'arm day'], 60),
   type('cardio', 'Cardio', 'cardio', '#3ff0c8', 'CA', ['cardio', 'run', 'ran', 'jog', 'bike', 'cycle', 'swim', 'row', 'hike', 'walk'], 70),
   type('class', 'Class', 'other', '#ff7b7b', 'CL', ['class', 'yoga', 'pilates', 'spin', 'barre', 'hiit', 'crossfit', 'boxing'], 80),
@@ -52,7 +53,11 @@ export const DEFAULT_EXERCISES = [
   ex('lunge', 'Lunges', 'lift', 'legs', ['lunge', 'lunges', 'walking lunges', 'split squat', 'split squats', 'bulgarian split squat', 'bulgarians']),
   ex('leg-curl', 'Leg curl', 'lift', 'legs', ['leg curl', 'leg curls', 'hamstring curl', 'hamstring curls']),
   ex('leg-ext', 'Leg extension', 'lift', 'legs', ['leg extension', 'leg extensions', 'leg ext']),
-  ex('calf-raise', 'Calf raise', 'lift', 'legs', ['calf raise', 'calf raises', 'calves']),
+  // feet + calves
+  ex('calf-raise', 'Calf raise', 'lift', 'feet', ['calf raise', 'calf raises']),
+  ex('sl-calf-raise', 'Single-leg calf raise', 'lift', 'feet', ['single leg calf raise', 'single leg calf raises', 'single-leg calf raise', 'single-leg calf raises', 'one leg calf raise', 'one leg calf raises', 'smith calf raise one leg', 'smith calf raises one leg', 'smith single leg calf raise', 'smith single leg calf raises']),
+  ex('tib-raise', 'Tib raise', 'bw', 'feet', ['tib raise', 'tib raises', 'tibialis raise', 'tibialis raises', 'tib bar']),
+  ex('soleus-stretch', 'Soleus stretch', 'time', 'mobility', ['soleus stretch', 'weighted soleus stretch', 'soleus stretches', 'smith soleus stretch']),
   ex('hip-thrust', 'Hip thrust', 'lift', 'legs', ['hip thrust', 'hip thrusts', 'glute bridge', 'glute bridges']),
   // core
   ex('plank', 'Plank', 'time', null, ['plank', 'planks']),

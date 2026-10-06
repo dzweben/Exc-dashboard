@@ -17,7 +17,7 @@ import { nowISO, todayISO, addDays, fmtDay, fmtRelative, isISODate, localDateOf,
 import { parseWorkout, findDay, fmtItem, fmtMin, fmtPace, trimNum } from '../src/engine/parse.js';
 import { OPS } from '../src/engine/ops.js';
 import { calendarView, todayView, logView, upcomingPlans } from '../src/engine/views.js';
-import { weekStats, weeks, streak, prsIndex, fmtPR, exerciseStats, lastSeen, lastOfType, bodyTrend, chronological } from '../src/engine/stats.js';
+import { weekStats, weeks, streak, prsIndex, fmtPR, exerciseStats, lastSeen, lastOfType, bodyTrend, chronological, rotation, areaGaps, suggestions, sinceLabel } from '../src/engine/stats.js';
 import { buildBrief, changesSince, changesBetween, fmtEntry } from '../src/engine/brief.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -548,8 +548,9 @@ function printToday(state, today) {
     console.log('\nPLANNED, NOT LOGGED (ask: did it happen?):');
     for (const p of tv.missed) printPlan(p);
   }
+  printNext(state, today, 6);
   const up = upcomingPlans(state, addDays(today, 1), 13);
-  console.log(`\nNEXT 2 WEEKS: ${up.length ? '' : 'nothing planned'}`);
+  console.log(`\nPLANNED (next 2 weeks): ${up.length ? '' : 'nothing planned'}`);
   for (const p of up) console.log(`  ${fmtDay(p.d).padEnd(10)} ${p.title}${p.items.length ? ` (${p.items.length} exercises)` : ''}  ${p.id}`);
   const recent = chronological(state).filter((w) => w.d < today).slice(-3).reverse();
   if (recent.length) {
@@ -557,6 +558,29 @@ function printToday(state, today) {
     for (const w of recent) console.log(`  ${fmtDay(w.d).padEnd(10)} ${w.title}${w.min ? ` · ${fmtMin(w.min)}` : ''}${(idx.get(w.id) ?? []).length ? ` · ★${idx.get(w.id).length} PR` : ''}`);
   }
 }
+
+function bestText(best) {
+  const parts = [];
+  if (best.weight) parts.push(`top ${trimNum(best.weight.value)} ${unit()}`);
+  if (best.reps) parts.push(`${best.reps.value} reps`);
+  if (best.hold) parts.push(`${best.hold.value}s`);
+  if (best.distance) parts.push(`${trimNum(best.distance.value)} ${S.settings.dist}`);
+  if (best.pace) parts.push(`${fmtPace(best.pace.value)}/${S.settings.dist}`);
+  return parts.join(' · ');
+}
+
+/** What hasn't been hit lately (Danny's rotation), most overdue first. */
+function printNext(state, today, n = 6) {
+  const sug = suggestions(state, today, 2);
+  console.log(`\nCOULD HIT ${tvDone(state, today) ? 'NEXT TIME' : 'TODAY'}: ${sug.length ? sug.map((r) => `${r.name} (${sinceLabel(r.daysSince)})`).join(' or ') : 'nothing in the rotation yet'}`);
+  const rot = rotation(state, today);
+  if (!rot.length) return;
+  console.log('DUE (longest since last hit):');
+  for (const r of rot.slice(0, n)) {
+    console.log(`  ${r.name.padEnd(24)} ${typeName(r.area).padEnd(14)} ${sinceLabel(r.daysSince).padEnd(13)} ${r.last ? `last ${fmtItem(r.last.item, state.settings)}` : ''}${r.goal ? `  · goal: ${r.goal}` : ''}`);
+  }
+}
+const tvDone = (state, today) => Object.values(state.workouts).some((w) => w.d === today);
 
 function printParsed(p) {
   console.log(`  → ${fmtDay(p.d)} · ${p.title} [${typeName(p.type) ?? p.type}]${p.min ? ` · ${fmtMin(p.min)}` : ''}`);
@@ -581,18 +605,23 @@ Log + plan
           | delete <plan> | edit <plan> [--title] [--type] [--notes] [--items '<text>']
   wk body <weight> [--on day] [--notes T]   ·   wk body            (trend)
 
+Rotation (what hasn't been hit)
+  wk next [--n 20]                 suggestions for today + every exercise by days since last hit + areas
+  wk rotate add '<exercise>' [--goal 'stay at 90, grow range'] [--kind k] [--type t]   (creates it if new)
+  wk rotate remove '<exercise>'    hides it from the rotation (history kept)
+
 Read
   wk today | wk cal [--days 14] | wk list [--n 15] [--type t] [--ex q] | wk week [--weeks 8]
   wk prs [--ex q] | wk history '<exercise>' [--n 10] | wk last '<type or exercise>'
 
 Catalog
   wk ex [list] | wk ex add 'Name' [--kind lift|bw|cardio|time] [--type split] [--alias a,b]
-  wk ex edit <ex> [--name] [--kind] [--type] [--alias a,b (adds)] [--archive] | wk ex merge <from> <into>
+  wk ex edit <ex> [--name] [--kind] [--type] [--alias a,b (adds)] [--goal T] [--archive] | wk ex merge <from> <into>
   wk types | wk type add 'Name' [--kind lift|cardio|other] [--alias a,b] | wk type edit <t> ...
   wk seed                         (adds missing starter types + exercises)
 
 Meta
-  wk settings [--unit lb|kg] [--dist mi|km] [--target N|none] [--reminders on|off] [--tz Area/City]
+  wk settings [--unit lb|kg] [--dist mi|km] [--target N|none] [--reminders on|off] [--plates on|off] [--tz Area/City]
   wk brief [--write] | wk scrub '<text>' [--with 'x'] | wk check [--fix] | wk changes
   wk sync [--allow-code] [--no-pull] | wk commit [-m msg] | wk push [--allow-code]
 
@@ -869,6 +898,32 @@ function main() {
       return;
     }
 
+    case 'next': {
+      const n = flags.n ? numArg(flags.n, '--n') : 20;
+      printNext(state, today, n);
+      console.log('\nAREAS (days since anything in it was hit):');
+      for (const a of areaGaps(state, today)) console.log(`  ${typeName(a.area).padEnd(16)} ${sinceLabel(a.daysSince)}  (${a.count} exercise${a.count === 1 ? '' : 's'})`);
+      return;
+    }
+
+    case 'rotate': {
+      const sub = pos[0];
+      if (sub !== 'add' && sub !== 'remove') die("wk rotate add|remove '<exercise>' (unknown exercises are created with add)");
+      const q = pos.slice(1).join(' ');
+      let ex = Object.values(state.exercises).find((e) => e.id === slugify(q) || e.name.toLowerCase() === q.toLowerCase() || e.aliases.includes(q.toLowerCase()));
+      if (!ex && sub === 'add') {
+        const res = must(apply('addExercise', { name: q.replace(/^./, (c) => c.toUpperCase()), kind: flags.kind, type: flags.type ? findDoc(state.types, flags.type, 'type').id : null }), 'not added');
+        ex = state.exercises[res.id];
+        console.log(`new exercise ${ex.id}: ${ex.name} (${ex.kind}; set with --kind / --type)`);
+      }
+      if (!ex) ex = findDoc(state.exercises, q, 'exercise');
+      const patch = sub === 'add' ? { rotation: true, archived: false } : { rotation: false, archived: true };
+      if (flags.goal) patch.notes = String(flags.goal);
+      must(apply('editExercise', { id: ex.id, patch }), 'nothing changed');
+      console.log(sub === 'add' ? `in rotation: ${ex.name}` : `out of rotation (hidden, history kept): ${ex.name}`);
+      break;
+    }
+
     case 'body': {
       if (!pos.length) {
         const bt = bodyTrend(state, today, 90);
@@ -908,6 +963,7 @@ function main() {
         if (flags.type) patch.type = flags.type === 'none' ? null : findDoc(state.types, flags.type, 'type').id;
         if (flags.alias) patch.aliases = [...ex.aliases, ...String(flags.alias).split(',')];
         if (flags.archive) patch.archived = flags.archive !== 'off';
+        if (flags.goal !== undefined) patch.notes = flags.goal === true ? '' : String(flags.goal);
         must(apply('editExercise', { id: ex.id, patch }), 'nothing changed');
         console.log(`updated ${ex.id}: ${JSON.stringify(state.exercises[ex.id])}`);
       } else if (sub === 'merge') {
@@ -949,6 +1005,7 @@ function main() {
       if (flags.target) patch.target = flags.target === 'none' ? null : numArg(flags.target, '--target');
       if (flags.reminders) patch.reminders = flags.reminders === 'on' || flags.reminders === true;
       if (flags.tz) patch.tz = String(flags.tz);
+      if (flags.plates) patch.plates = flags.plates === 'on' || flags.plates === true;
       if (Object.keys(patch).length) must(apply('editSettings', { patch }), 'nothing changed');
       console.log(JSON.stringify(state.settings, null, 2));
       break;

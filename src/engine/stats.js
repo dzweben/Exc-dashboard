@@ -273,3 +273,70 @@ export function bodyTrend(state, today, days = 90) {
   const first = list[0] ?? null;
   return { list, last, change7: last && weekAgo && weekAgo !== last ? Math.round((last.w - weekAgo.w) * 10) / 10 : null, changeAll: last && first && first !== last ? Math.round((last.w - first.w) * 10) / 10 : null };
 }
+
+// ---------------------------------------------------------------- rotation: what hasn't been hit
+
+/**
+ * Every exercise in Danny's rotation (logged at least once, or flagged `rotation`), with
+ * how long since it was hit, most overdue first (never-done flagged ones first of all):
+ * [{ ex, name, area, kind, goal, daysSince (null = never), last: { d, item } | null, best, sessions }]
+ */
+export function rotation(state, today) {
+  const stats = new Map(exerciseStats(state).map((r) => [r.ex, r]));
+  const out = [];
+  for (const e of Object.values(state.exercises ?? {})) {
+    if (e.archived) continue;
+    const st = stats.get(e.id);
+    if (!st && !e.rotation) continue;
+    const last = st ? lastSeen(state, e.id, addDays(today, 1)) : null;
+    out.push({
+      ex: e.id, name: e.name, area: e.type ?? 'other', kind: e.kind, goal: e.notes ?? '',
+      daysSince: last ? diffDays(last.d, today) : null,
+      last, best: st?.best ?? {}, sessions: st?.sessions ?? 0,
+    });
+  }
+  const key = (r) => (r.daysSince == null ? Infinity : r.daysSince);
+  return out.sort((a, b) => key(b) - key(a) || a.name.localeCompare(b.name));
+}
+
+/** Per area (workout type): days since anything in it was hit. Most overdue first. */
+export function areaGaps(state, today) {
+  const rot = rotation(state, today);
+  const byArea = new Map();
+  for (const r of rot) {
+    const cur = byArea.get(r.area);
+    const d = r.daysSince == null ? Infinity : r.daysSince;
+    if (!cur) byArea.set(r.area, { area: r.area, daysSince: d, count: 1 });
+    else {
+      cur.daysSince = Math.min(cur.daysSince, d);
+      cur.count++;
+    }
+  }
+  return [...byArea.values()].map((a) => ({ ...a, daysSince: a.daysSince === Infinity ? null : a.daysSince }))
+    .sort((a, b) => (b.daysSince ?? Infinity) - (a.daysSince ?? Infinity));
+}
+
+/**
+ * Today's suggestions: the most overdue exercises, one per area, skipping what was
+ * already done today. Each carries what to beat (`last`, `best`) and Danny's goal.
+ */
+export function suggestions(state, today, n = 2) {
+  const out = [];
+  const areas = new Set();
+  for (const r of rotation(state, today)) {
+    if (r.daysSince === 0) continue;
+    if (areas.has(r.area)) continue;
+    areas.add(r.area);
+    out.push(r);
+    if (out.length >= n) break;
+  }
+  return out;
+}
+
+/** "never", "today", "yesterday", "12 days ago". */
+export function sinceLabel(days) {
+  if (days == null) return 'never';
+  if (days === 0) return 'today';
+  if (days === 1) return 'yesterday';
+  return `${days} days ago`;
+}

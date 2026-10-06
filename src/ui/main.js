@@ -3,7 +3,7 @@ import { h, mount, safeStorage, isSegmented } from './dom.js';
 import { todayISO, nowISO, addDays } from '../engine/dates.js';
 import { OPS } from '../engine/ops.js';
 import { calendarView, todayView, logView, upcomingPlans } from '../engine/views.js';
-import { weekStats, weeks, streak, heatmap, prsIndex, exerciseStats, bodyTrend } from '../engine/stats.js';
+import { weekStats, weeks, streak, heatmap, prsIndex, exerciseStats, bodyTrend, rotation, areaGaps, suggestions } from '../engine/stats.js';
 import { normalizeState, emptyState } from '../engine/model.js';
 import { createGitHubStore } from '../store/githubstore.js';
 import { createLocalStore } from '../store/localstore.js';
@@ -26,7 +26,7 @@ const CONFIG_KEY = 'wk.gh.config';
 
 export const DEFAULT_CONFIG = Object.freeze({
   owner: 'dzweben',
-  repo: 'workout-dashboard',
+  repo: 'exc-dashboard',
   branch: '', // '' = the repo's default branch
   path: 'data/state.json',
   // Author + committer of every website commit (GitHub's noreply address, never a personal email).
@@ -41,7 +41,7 @@ export const TABS = [
   { id: 'overview', label: 'Today', icon: 'bolt' },
   { id: 'log', label: 'Log', icon: 'history' },
   { id: 'plan', label: '2 weeks', icon: 'calendar' },
-  { id: 'lifts', label: 'PRs', icon: 'trophy' },
+  { id: 'lifts', label: 'Progress', icon: 'trophy' },
   { id: 'body', label: 'Body', icon: 'scale' },
   { id: 'setup', label: 'Setup', icon: 'settings' },
 ];
@@ -217,6 +217,9 @@ export function boot(root = document, opts = {}) {
       prs: prsIndex(state),
       exercises: exerciseStats(state),
       body: bodyTrend(state, today, 120),
+      rotation: rotation(state, today),
+      areas: areaGaps(state, today),
+      suggest: suggestions(state, today, 2),
     };
     vmCache = { state, today, vm };
     return vm;

@@ -1,5 +1,5 @@
 {
-  "name": "workout-dashboard",
+  "name": "exc-dashboard",
   "version": "1.0.0",
   "private": true,
   "description": "Danny's workout log: lifts, cardio, PRs, streaks and a 2-week plan, with Claude as the chat front end.",

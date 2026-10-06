@@ -5,6 +5,7 @@ import { fmtDay, fmtMonthDay } from '../../engine/dates.js';
 import { fmtItem, fmtPace, trimNum } from '../../engine/parse.js';
 import { fmtPR, chronological } from '../../engine/stats.js';
 import { ic, typeStyle, kfmt, goTab } from './common.js';
+import { renderDue } from './due.js';
 
 export function streakBlock(ctx) {
   const st = ctx.vm.streak;
@@ -91,6 +92,10 @@ export function renderLifts(ctx) {
   if (f.exType) rows = rows.filter((r) => (ctx.state.exercises?.[r.ex]?.type ?? 'other') === f.exType);
   const types = [...new Set(ctx.vm.exercises.map((r) => ctx.state.exercises?.[r.ex]?.type ?? 'other'))];
   return h('div.lifts',
+    h('section.panel.is-cyan.lifts-due',
+      h('header.panel-head', h('h2', h('span.slash', '//'), 'Rotation'), h('span.label.is-bracket', 'every exercise · longest since last hit first')),
+      h('div.panel-body', renderDue(ctx)),
+    ),
     h('section.panel.is-acid.lifts-weeks',
       h('header.panel-head', h('h2', h('span.slash', '//'), 'Weekly'), h('span.label.is-bracket', 'bars: workouts · ghost: volume')),
       h('div.panel-body', weekBars(ctx)),

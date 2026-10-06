@@ -1,6 +1,7 @@
 // Claude's check-in, website-change reports and commit messages. Pure.
 import { addDays, fmtDay, fmtRelative, localDateOf } from './dates.js';
-import { weekStats, streak, prsIndex, fmtPR, chronological, bodyTrend } from './stats.js';
+import { weekStats, streak, prsIndex, fmtPR, chronological, bodyTrend, suggestions, sinceLabel } from './stats.js';
+import { fmtItem } from './parse.js';
 import { todayView, upcomingPlans } from './views.js';
 
 const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
@@ -22,7 +23,10 @@ export function buildBrief(state, { today }) {
   let headline;
   if (doneToday.length) headline = `Logged today: ${doneToday.map((w) => w.title).join(' + ')}.`;
   else if (tv.planned.length) headline = `On the plan today: ${tv.planned.map((p) => p.title).join(' + ')}.`;
-  else headline = week.sessions ? `${plural(week.sessions, 'workout')} this week.` : 'Fresh week.';
+  else {
+    const sug = state.settings?.reminders !== false ? suggestions(state, today, 2) : [];
+    headline = sug.length ? `Today could be ${sug.map((r) => r.name.toLowerCase()).join(' or ')}.` : week.sessions ? `${plural(week.sessions, 'workout')} this week.` : 'Fresh week.';
+  }
 
   const target = state.settings?.target;
   lines.push(`This week: ${week.sessions}${target ? `/${target}` : ''} workout${week.sessions === 1 && !target ? '' : 's'}${week.volume ? ` · ${week.volume.toLocaleString('en-US')} ${state.settings?.unit ?? 'lb'} volume` : ''}${week.dist ? ` · ${week.dist} ${state.settings?.dist ?? 'mi'}` : ''}${week.minutes ? ` · ${week.minutes} min` : ''}.`);
@@ -33,13 +37,18 @@ export function buildBrief(state, { today }) {
 
   const upcoming = upcomingPlans(state, addDays(today, 1), 7).slice(0, 4);
   if (upcoming.length) lines.push(`Planned: ${upcoming.map((p) => `${p.title} ${fmtDay(p.d)}`).join(', ')}.`);
-  else if (!tv.planned.length) lines.push('Nothing planned for the next week yet.');
+
+  if (state.settings?.reminders !== false) {
+    const sug = suggestions(state, today, 2);
+    if (sug.length) {
+      lines.push(`${doneToday.length ? 'Next time' : 'Could hit today'}: ${sug.map((r) => `${r.name} (${sinceLabel(r.daysSince)}${r.last ? `; last ${fmtItem(r.last.item, state.settings)}` : ''})`).join(' or ')}.`);
+    }
+  }
 
   const bt = bodyTrend(state, today, 30);
   if (bt.last && bt.last.d >= addDays(today, -7)) lines.push(`Body weight ${bt.last.w}${bt.change7 != null ? ` (${bt.change7 > 0 ? '+' : ''}${bt.change7} vs a week ago)` : ''}.`);
 
   for (const p of tv.missed.slice(0, 2)) asks.push(`Did ${p.title} (${fmtDay(p.d)}) happen? Log it, move it, or skip it.`);
-  if (state.settings?.reminders && !doneToday.length && tv.planned.length) asks.push(`${tv.planned[0].title} is on for today.`);
 
   const text = [headline, ...lines.map((l) => `- ${l}`), ...asks.map((a) => `? ${a}`)].join('\n');
   return { headline, lines, asks, text };

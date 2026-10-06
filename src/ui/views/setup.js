@@ -12,7 +12,7 @@ const STATUS_WORD = { synced: 'SYNCED', saving: 'SAVING…', loading: 'LOADING�
 export function tokenUrl(config = {}) {
   const q = new URLSearchParams({
     name: 'Workout Console',
-    description: `Workout Console website: read + write ${config.path || 'data/state.json'} in ${config.repo || 'workout-dashboard'}`,
+    description: `Workout Console website: read + write ${config.path || 'data/state.json'} in ${config.repo || 'exc-dashboard'}`,
     expires_in: '365',
     contents: 'write',
   });
@@ -78,7 +78,7 @@ function statusCard(ctx) {
 
 function githubSection(ctx) {
   const cfg = { owner: '', repo: '', branch: '', path: '', ...(ctx?.config ?? {}) };
-  const repoName = cfg.repo || 'workout-dashboard';
+  const repoName = cfg.repo || 'exc-dashboard';
   const hasToken = !!ctx?.hasToken;
   const steps = [
     ['Open GitHub’s token page', h('span', ' ', h('a', { href: tokenUrl(cfg), target: '_blank', rel: 'noopener noreferrer' }, 'this link', ic(ctx, 'external')), ' opens a fine-grained token form with the name, expiry and Contents: Read and write filled in.')],
@@ -123,7 +123,7 @@ function githubSection(ctx) {
       hasToken ? h('button.btn.btn-sm.setup-forget', { type: 'button', onclick: () => { ctx?.clearToken?.(); ctx?.toast?.('Token forgotten. Read-only now.', { kind: 'info' }); } }, ic(ctx, 'x'), 'Forget token') : null,
     ),
   );
-  const fields = [['owner', 'Owner', 'dzweben'], ['repo', 'Repo', 'workout-dashboard'], ['branch', 'Branch', 'default branch'], ['path', 'Path', 'data/state.json']];
+  const fields = [['owner', 'Owner', 'dzweben'], ['repo', 'Repo', 'exc-dashboard'], ['branch', 'Branch', 'default branch'], ['path', 'Path', 'data/state.json']];
   const cfgForm = h('form.setup-config', {
     onsubmit: (e) => {
       e.preventDefault();
@@ -219,7 +219,7 @@ function exercisesSection(ctx, canWrite) {
 
 function aboutSection(ctx) {
   const cfg = ctx?.config ?? {};
-  const base = `https://github.com/${encodeURIComponent(cfg.owner || 'dzweben')}/${encodeURIComponent(cfg.repo || 'workout-dashboard')}`;
+  const base = `https://github.com/${encodeURIComponent(cfg.owner || 'dzweben')}/${encodeURIComponent(cfg.repo || 'exc-dashboard')}`;
   const st = ctx?.state ?? {};
   const count = (k) => Object.keys(st[k] ?? {}).length;
   const stat = (n, label) => h('div.setup-stat', h('b.shout', String(n)), h('span.label', label));

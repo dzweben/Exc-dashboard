@@ -4,6 +4,7 @@ import { fmtDay, fmtRelative, fmtWeekday } from '../../engine/dates.js';
 import { ic, typeMark, typeStyle, itemsList, prList, agoLabel, dayLabel, fmtMin, goTab } from './common.js';
 import { renderStrip } from './plan.js';
 import { heatGrid, streakBlock } from './lifts.js';
+import { renderDue } from './due.js';
 
 export function renderOverview(ctx) {
   if (!ctx.loaded) {
@@ -12,7 +13,8 @@ export function renderOverview(ctx) {
   return h('div.ov',
     todayPanel(ctx),
     h('div.ov-brief', renderBrief(ctx)),
-    h('section.panel.ov-cal', h('header.panel-head', h('h2', h('span.slash', '//'), 'Next 2 weeks'), h('button.btn.btn-sm', { type: 'button', onclick: () => goTab(ctx, 'plan') }, 'Open', ic(ctx, 'arrow-right'))), h('div.panel-body', renderStrip(ctx, { compact: true }))),
+    h('section.panel.is-cyan.ov-due', h('header.panel-head', h('h2', h('span.slash', '//'), 'Due next'), h('span.label.is-bracket', 'longest since last hit')), h('div.panel-body', renderDue(ctx, { compact: true }))),
+    h('section.panel.ov-cal', h('header.panel-head', h('h2', h('span.slash', '//'), 'Planned'), h('button.btn.btn-sm', { type: 'button', onclick: () => goTab(ctx, 'plan') }, 'Open', ic(ctx, 'arrow-right'))), h('div.panel-body', renderStrip(ctx, { compact: true }))),
     recentPanel(ctx),
     h('section.panel.is-acid.ov-heat', h('header.panel-head', h('h2', h('span.slash', '//'), 'Streak')), h('div.panel-body', streakBlock(ctx), heatGrid(ctx))),
   );

@@ -13,7 +13,7 @@ Danny ──chat──▶ Claude (CLAUDE.md), every turn:
                   wk brief --write   the note shown on the website
                   wk commit && wk push   author: Danny Zweben (noreply); retries over website races
                   ▼
-        github.com/dzweben/workout-dashboard ── data/state.json (every change = a commit)
+        github.com/dzweben/exc-dashboard ── data/state.json (every change = a commit)
                   ▲
 Danny ──taps──▶ website (docs/index.html) ── Contents API with Danny's fine-grained token
 ```
@@ -30,7 +30,7 @@ Danny ──taps──▶ website (docs/index.html) ── Contents API with Dan
 State = {
   schema: 1,
   settings: { tz, owner, weekStart: 'mon', unit: 'lb'|'kg', dist: 'mi'|'km',
-              target: null|N (workouts/week goal), horizon: 14, reminders: false },
+              target: null|N (workouts/week goal), horizon: 14, reminders: true (suggest what's due), plates: true (weights exclude the bar) },
   brief:    { at, headline, lines: [], asks: [] } | null,
   sync:     { lastClaudeSync, lastActivitySeen },
   types:     { [id]: Type },       // splits: push, pull, legs, upper, full, arms, cardio, class, sport, mobility, other
@@ -41,7 +41,7 @@ State = {
   activity:  { [id]: Activity },
 }
 Type     = { id, name, kind: 'lift'|'cardio'|'other', color, glyph, aliases: [], order, archived, created }
-Exercise = { id (slug), name, kind: 'lift'|'bw'|'cardio'|'time', type: typeId|null, aliases: [], notes, archived, created }
+Exercise = { id (slug), name, kind: 'lift'|'bw'|'cardio'|'time', type: typeId|null (its area), aliases: [], notes (Danny's goal), rotation: bool, archived, created }
 Workout  = { id: 'w_…', d, time, type, title, min, items: Item[], notes, feel: 1-5|null, plan: planId|null, created, updated, src }
 Plan     = { id: 'pl_…', d, time, type, title, items: Item[] (targets), notes, status: 'planned'|'done'|'skipped', workout, created, updated, src }
 Item     = { id: 'i1', ex, sets: [{ r, w, s? }], dist, min, notes }   // w in settings.unit (null = bodyweight / added weight for bw), s = seconds
@@ -77,7 +77,10 @@ New exercises/types are created `ifAbsent`.
 - `stats.js`: `e1rm` (Epley), `prsIndex(state)` (workout id → PRs; marks:
   weight, e1rm, reps, distance, pace, hold, duration; a first session sets none),
   `exerciseStats`, `lastSeen`, `lastOfType`, `weekStats`, `weeks`, `heatmap`,
-  `streak` (days, and weeks at target), `bodyTrend`, `fmtPR`.
+  `streak` (days, and weeks at target), `bodyTrend`, `fmtPR`, and the rotation:
+  `rotation` (exercises logged or flagged `rotation`, most days since last hit
+  first), `areaGaps` (per type), `suggestions(state, today, n)` (most overdue, one
+  per area, not done today), `sinceLabel`.
 - `views.js`: `calendarView`, `todayView` (logged, planned, missed, next),
   `logView`, `upcomingPlans`.
 - `brief.js`: `buildBrief`, `changesBetween`, `changesSince`, `commitMessage`, `fmtEntry`.
