@@ -12,17 +12,17 @@
     "plates": true
   },
   "brief": {
-    "at": "2026-10-06T01:01:27.058Z",
-    "headline": "Logged today: Calves + soleus stretch + lat pulldown.",
+    "at": "2026-10-06T01:05:24.497Z",
+    "headline": "Logged today: Calves, stretch, krump + upper pulls/push.",
     "lines": [
-      "This week: 1 workout · 750 lb volume.",
+      "This week: 1 workout · 1,780 lb volume · 5 min.",
       "Next time: Tib raise (never)."
     ],
     "asks": []
   },
   "sync": {
-    "lastClaudeSync": "2026-10-06T00:53:39.330Z",
-    "lastActivitySeen": "2026-10-06T00:53:39.330Z"
+    "lastClaudeSync": "2026-10-06T01:04:55.241Z",
+    "lastActivitySeen": "2026-10-06T01:04:55.241Z"
   },
   "types": {
     "arms": {
@@ -534,6 +534,17 @@
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
+    "krumping": {
+      "id": "krumping",
+      "name": "Krumping",
+      "kind": "time",
+      "type": "cardio",
+      "aliases": [],
+      "notes": "",
+      "rotation": false,
+      "archived": false,
+      "created": "2026-10-06T01:04:59.810Z"
+    },
     "lat-pulldown": {
       "id": "lat-pulldown",
       "name": "Lat pulldown",
@@ -772,6 +783,20 @@
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
     },
+    "seated-machine-row": {
+      "id": "seated-machine-row",
+      "name": "Seated machine row",
+      "kind": "lift",
+      "type": "pull",
+      "aliases": [
+        "machine row",
+        "seated machine row"
+      ],
+      "notes": "",
+      "rotation": false,
+      "archived": false,
+      "created": "2026-10-06T01:05:10.043Z"
+    },
     "shrug": {
       "id": "shrug",
       "name": "Shrugs",
@@ -924,6 +949,33 @@
       "rotation": false,
       "archived": false,
       "created": "2026-10-05T00:00:00.000Z"
+    },
+    "warrior": {
+      "id": "warrior",
+      "name": "Warrior",
+      "kind": "lift",
+      "type": null,
+      "aliases": [],
+      "notes": "",
+      "rotation": false,
+      "archived": false,
+      "created": "2026-10-06T01:04:59.810Z"
+    },
+    "warrior-upper-body-stretch": {
+      "id": "warrior-upper-body-stretch",
+      "name": "Warrior upper-body stretch",
+      "kind": "time",
+      "type": "mobility",
+      "aliases": [
+        "warrior stretch",
+        "warrior upper body stretch",
+        "upper body stretch",
+        "full upper body stretch"
+      ],
+      "notes": "",
+      "rotation": false,
+      "archived": false,
+      "created": "2026-10-06T01:05:09.932Z"
     }
   },
   "plans": {},
@@ -933,7 +985,7 @@
       "d": "2026-10-05",
       "time": null,
       "type": "other",
-      "title": "Calves + soleus stretch + lat pulldown",
+      "title": "Calves, stretch, krump + upper pulls/push",
       "min": null,
       "items": [
         {
@@ -979,18 +1031,70 @@
           "dist": null,
           "min": null,
           "notes": ""
+        },
+        {
+          "id": "i5",
+          "ex": "krumping",
+          "sets": [],
+          "dist": null,
+          "min": 5,
+          "notes": ""
+        },
+        {
+          "id": "i6",
+          "ex": "triceps",
+          "sets": [
+            {
+              "r": 3,
+              "w": 130
+            }
+          ],
+          "dist": null,
+          "min": null,
+          "notes": ""
+        },
+        {
+          "id": "i6",
+          "ex": "warrior-upper-body-stretch",
+          "sets": [],
+          "dist": null,
+          "min": null,
+          "notes": "bodyweight"
+        },
+        {
+          "id": "i7",
+          "ex": "seated-machine-row",
+          "sets": [
+            {
+              "r": 4,
+              "w": 160
+            }
+          ],
+          "dist": null,
+          "min": null,
+          "notes": ""
         }
       ],
       "notes": "",
       "feel": null,
       "plan": null,
       "created": "2026-10-05T23:37:01.943Z",
-      "updated": "2026-10-06T00:14:58.488Z",
+      "updated": "2026-10-06T01:05:10.445Z",
       "src": "chat"
     }
   },
   "body": {},
   "activity": {
+    "a_0771c1x5": {
+      "id": "a_0771c1x5",
+      "at": "2026-10-06T01:05:10.349Z",
+      "src": "chat",
+      "type": "edit",
+      "ref": "w_ckfqtzkk",
+      "title": "Calves, stretch, krump + upper pulls/push",
+      "from": null,
+      "to": null
+    },
     "a_1409vg4n": {
       "id": "a_1409vg4n",
       "at": "2026-10-06T00:14:58.303Z",
@@ -1011,6 +1115,16 @@
       "from": null,
       "to": null
     },
+    "a_hnip3ds1": {
+      "id": "a_hnip3ds1",
+      "at": "2026-10-06T01:05:10.248Z",
+      "src": "chat",
+      "type": "edit",
+      "ref": "w_ckfqtzkk",
+      "title": "Calves, stretch, krump + upper pulls/push",
+      "from": null,
+      "to": null
+    },
     "a_o30vnc91": {
       "id": "a_o30vnc91",
       "at": "2026-10-06T00:14:58.606Z",
@@ -1018,6 +1132,16 @@
       "type": "ex",
       "ref": "sl-calf-raise",
       "title": "Single-leg calf raise",
+      "from": null,
+      "to": null
+    },
+    "a_o9shb8xm": {
+      "id": "a_o9shb8xm",
+      "at": "2026-10-06T01:05:10.445Z",
+      "src": "chat",
+      "type": "edit",
+      "ref": "w_ckfqtzkk",
+      "title": "Calves, stretch, krump + upper pulls/push",
       "from": null,
       "to": null
     },
@@ -1030,6 +1154,26 @@
       "title": "Workout",
       "from": null,
       "to": "2026-10-05"
+    },
+    "a_r20wrc5k": {
+      "id": "a_r20wrc5k",
+      "at": "2026-10-06T01:05:09.932Z",
+      "src": "chat",
+      "type": "ex",
+      "ref": "warrior-upper-body-stretch",
+      "title": "Warrior upper-body stretch",
+      "from": null,
+      "to": null
+    },
+    "a_szifibnp": {
+      "id": "a_szifibnp",
+      "at": "2026-10-06T01:05:10.151Z",
+      "src": "chat",
+      "type": "ex",
+      "ref": "krumping",
+      "title": "Krumping",
+      "from": null,
+      "to": null
     },
     "a_ud03w70i": {
       "id": "a_ud03w70i",
@@ -1048,6 +1192,26 @@
       "type": "edit",
       "ref": "w_ckfqtzkk",
       "title": "Calves + soleus stretch + lat pulldown",
+      "from": null,
+      "to": null
+    },
+    "a_x9rbp9te": {
+      "id": "a_x9rbp9te",
+      "at": "2026-10-06T01:04:59.810Z",
+      "src": "chat",
+      "type": "edit",
+      "ref": "w_ckfqtzkk",
+      "title": "Calves, stretch, krump + upper pulls/push",
+      "from": null,
+      "to": null
+    },
+    "a_zm2s7tdp": {
+      "id": "a_zm2s7tdp",
+      "at": "2026-10-06T01:05:10.043Z",
+      "src": "chat",
+      "type": "ex",
+      "ref": "seated-machine-row",
+      "title": "Seated machine row",
       "from": null,
       "to": null
     }
