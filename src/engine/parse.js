@@ -236,7 +236,7 @@ export function parseWorkout(text, { today, state = {}, mode = 'log' } = {}) {
   const GENERIC = new Set(['class', 'workout', 'gym', 'lift', 'lifted', 'trained', 'exercise', 'full']);
   // words inside an exercise name ("soleus stretch") never count as a type ("stretch")
   const masked = () => {
-    let m = ` ${body.toLowerCase()} `;
+    let m = ` ${body.toLowerCase().replace(/\([^)]*\)/g, (x) => '\u0000'.repeat(x.length))} `;
     for (const row of exTable) {
       const re = new RegExp(`(^|[^a-z0-9])(${esc(row.alias)})(?=$|[^a-z0-9])`, 'g');
       m = m.replace(re, (_, pre, w) => pre + '\u0000'.repeat(w.length));
