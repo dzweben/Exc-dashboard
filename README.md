@@ -8,7 +8,7 @@ streak + heatmap, optional plans and body weight, with Claude as the chat
 front end. Weights are plates only (the bar is never counted). Same setup as the
 [EF Console](https://github.com/dzweben/ef-dashboard-management).
 
-- **Website:** https://dzweben.github.io/exc-dashboard/
+- **Website:** https://dzweben.github.io/Exc-dashboard/
   Type workouts into the terminal bar (`push day: bench 3x8 @185, 30 min`),
   switch it to PLAN for the next two weeks, tap a workout to fix its numbers,
   hit "Did it" on a planned day. Every change is a commit under Danny's name.

@@ -26,7 +26,7 @@ const CONFIG_KEY = 'wk.gh.config';
 
 export const DEFAULT_CONFIG = Object.freeze({
   owner: 'dzweben',
-  repo: 'exc-dashboard',
+  repo: 'Exc-dashboard',
   branch: '', // '' = the repo's default branch
   path: 'data/state.json',
   // Author + committer of every website commit (GitHub's noreply address, never a personal email).

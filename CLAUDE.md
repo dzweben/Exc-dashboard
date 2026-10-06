@@ -154,7 +154,7 @@ exactly the number he says; don't add 45. (`settings.plates` is on.)
 
 ## The website
 
-- Live site: https://dzweben.github.io/exc-dashboard/ (GitHub Pages from
+- Live site: https://dzweben.github.io/Exc-dashboard/ (GitHub Pages from
   `docs/` on the default branch). Danny enables Pages once: Settings → Pages →
   Deploy from a branch → `main` / `/docs`.
 - It reads and writes `data/state.json` through the GitHub API with a
